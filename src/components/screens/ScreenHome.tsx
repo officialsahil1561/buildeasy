@@ -532,42 +532,45 @@ export default function ScreenHome({ onStartBuilder }: ScreenHomeProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {/* Benefit Card 1 */}
-            <div className="p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] flex flex-col justify-between">
-              <div className="w-10 h-10 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center text-[#111827] shadow-2xs mb-5 sm:mb-6">
-                <Layers className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
+            {/* Benefit Card 1 - Instant Creator */}
+            <div className="p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] bg-white flex flex-col items-center text-center shadow-xs hover:shadow-md transition-all duration-200">
+              <div className="w-[300px] h-[300px] flex items-center justify-center overflow-hidden mb-4 bg-[#F9FAFB] rounded-xl border border-[#F3F4F6]">
+                {/* @ts-ignore */}
+                <dotlottie-wc src="https://lottie.host/3ca04852-0975-40cb-a93d-a0137ad9e148/7v6IF1qXi5.lottie" style={{ width: '300px', height: '300px' }} autoplay loop></dotlottie-wc>
               </div>
-              <div>
-                <h3 className="text-base font-bold text-[#111827] mb-1.5 sm:mb-2">Professional Templates</h3>
-                <p className="text-sm text-[#6B7280] leading-relaxed">
-                  Thoughtfully structured resume layouts designed around clarity and readability.
+              <div className="w-full">
+                <h3 className="text-lg font-bold text-[#111827] mb-2">Professional Editorial Layouts</h3>
+                <p className="text-sm text-[#5B6472] leading-relaxed">
+                  Design beautiful, clean resumes automatically pre-configured to meet modern visual standards.
                 </p>
               </div>
             </div>
 
-            {/* Benefit Card 2 */}
-            <div className="p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] flex flex-col justify-between">
-              <div className="w-10 h-10 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center text-[#111827] shadow-2xs mb-5 sm:mb-6">
-                <Eye className="w-5 h-5" />
+            {/* Benefit Card 2 - ATS Diagnostic */}
+            <div className="p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] bg-white flex flex-col items-center text-center shadow-xs hover:shadow-md transition-all duration-200">
+              <div className="w-[300px] h-[300px] flex items-center justify-center overflow-hidden mb-4 bg-[#F9FAFB] rounded-xl border border-[#F3F4F6]">
+                {/* @ts-ignore */}
+                <dotlottie-wc src="https://lottie.host/90b8f637-0021-46aa-882c-661c6299ea46/reLdmA02iY.lottie" style={{ width: '300px', height: '300px' }} autoplay loop></dotlottie-wc>
               </div>
-              <div>
-                <h3 className="text-base font-bold text-[#111827] mb-1.5 sm:mb-2">Live Preview</h3>
-                <p className="text-sm text-[#6B7280] leading-relaxed">
-                  See exactly how your resume looks in real-time as you enter and organize your experience.
+              <div className="w-full">
+                <h3 className="text-lg font-bold text-[#111827] mb-2">Real-time Scanner & Analysis</h3>
+                <p className="text-sm text-[#5B6472] leading-relaxed">
+                  Analyze your resume scores, scan keywords, and optimize formatting against custom job requirements.
                 </p>
               </div>
             </div>
 
-            {/* Benefit Card 3 */}
-            <div className="p-5 sm:p-6 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] flex flex-col justify-between">
-              <div className="w-10 h-10 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center text-[#111827] shadow-2xs mb-5 sm:mb-6">
-                <Download className="w-5 h-5" />
+            {/* Benefit Card 3 - Seamless PDF Output */}
+            <div className="p-6 sm:p-8 rounded-2xl border border-[#E5E7EB] bg-white flex flex-col items-center text-center shadow-xs hover:shadow-md transition-all duration-200">
+              <div className="w-[300px] h-[300px] flex items-center justify-center overflow-hidden mb-4 bg-[#F9FAFB] rounded-xl border border-[#F3F4F6]">
+                {/* @ts-ignore */}
+                <dotlottie-wc src="https://lottie.host/acadc4e0-a2ac-4929-8d36-23f5f70555fd/n4X7vhkYKN.lottie" style={{ width: '300px', height: '300px' }} autoplay loop></dotlottie-wc>
               </div>
-              <div>
-                <h3 className="text-base font-bold text-[#111827] mb-1.5 sm:mb-2">PDF Export</h3>
-                <p className="text-sm text-[#6B7280] leading-relaxed">
-                  Download the finished resume as a clean, standardized, print-ready PDF ready for submission.
+              <div className="w-full">
+                <h3 className="text-lg font-bold text-[#111827] mb-2">High-Resolution Vector Export</h3>
+                <p className="text-sm text-[#5B6472] leading-relaxed">
+                  Export complete, standardized, and perfectly compliant vector PDFs ready for application portals.
                 </p>
               </div>
             </div>

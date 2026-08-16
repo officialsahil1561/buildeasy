@@ -90,8 +90,24 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
             <div className="space-y-6">
               
               {/* Overall Status summary */}
-              <div className="bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] p-4 text-center space-y-2">
+              <div className="bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] p-4 text-center flex flex-col items-center space-y-2 relative overflow-hidden">
                 <p className="text-[10px] font-bold tracking-widest uppercase text-[#6B7280]">Resume Readiness</p>
+                
+                {/* Delightful status feedback micro-animation */}
+                <div className="w-[80px] h-[80px] flex items-center justify-center -my-2">
+                  {/* @ts-ignore */}
+                  <dotlottie-wc
+                    src={
+                      report.overallStatus === 'Excellent' || report.overallStatus === 'Good'
+                        ? 'https://lottie.host/acadc4e0-a2ac-4929-8d36-23f5f70555fd/n4X7vhkYKN.lottie'
+                        : 'https://lottie.host/90b8f637-0021-46aa-882c-661c6299ea46/reLdmA02iY.lottie'
+                    }
+                    style={{ width: '80px', height: '80px' }}
+                    autoplay
+                    loop
+                  ></dotlottie-wc>
+                </div>
+
                 <div className="flex justify-center items-center gap-2">
                   {report.overallStatus === 'Excellent' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
                   {report.overallStatus === 'Good' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
