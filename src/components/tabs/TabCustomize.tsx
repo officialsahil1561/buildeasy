@@ -229,23 +229,6 @@ export default function TabCustomize({ data, onChange }: TabCustomizeProps) {
             })}
           </div>
         </div>
-
-        {/* Brand Delight Lottie Decoration */}
-        <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl flex flex-col items-center text-center mt-6">
-          <div className="w-[120px] h-[120px] flex items-center justify-center overflow-hidden mb-1">
-            {/* @ts-ignore */}
-            <dotlottie-wc
-              src="https://lottie.host/3ca04852-0975-40cb-a93d-a0137ad9e148/7v6IF1qXi5.lottie"
-              style={{ width: '120px', height: '120px' }}
-              autoplay
-              loop
-            ></dotlottie-wc>
-          </div>
-          <span className="text-xs font-bold text-[#0F172A]">Real-time Customization</span>
-          <span className="text-[10px] text-[#64748B] mt-1 leading-relaxed">
-            Drag to reorder resume blocks or toggle sections. Your changes re-render instantly on the page layout.
-          </span>
-        </div>
       </div>
     </div>
   );

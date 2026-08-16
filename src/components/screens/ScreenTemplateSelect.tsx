@@ -191,30 +191,18 @@ export default function ScreenTemplateSelect({
     <div className="flex-1 overflow-y-auto bg-[#F5F7FA] px-4 py-8 md:py-10">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Title and Intro with delightful Lottie Illustration */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs">
-          <div className="space-y-3 flex-1 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#475569] uppercase tracking-wider bg-[#F1F5F9] px-2.5 py-1 rounded-full border border-[#E2E8F0]">
-              <Sparkles className="w-3.5 h-3.5 text-[#0F172A]" />
-              <span>Step 1: Choose Your Architecture</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
-              Select a Resume Template
-            </h1>
-            <p className="text-sm text-[#4B5563] max-w-2xl leading-relaxed">
-              All layouts are 100% deterministic, ATS-compatible, and consume the exact same structured profile. You can switch styles at any time without losing any input data!
-            </p>
+        {/* Title and Intro */}
+        <div className="space-y-2 text-center sm:text-left">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#475569] uppercase tracking-wider bg-white px-2.5 py-1 rounded-full border border-[#E5E7EB] shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#0F172A]" />
+            <span>Step 1: Choose Your Architecture</span>
           </div>
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] shrink-0 bg-[#F8FAFC] rounded-2xl border border-[#F1F5F9] flex items-center justify-center p-2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:16px_16px] opacity-60"></div>
-            {/* @ts-ignore */}
-            <dotlottie-wc
-              src="https://lottie.host/3ca04852-0975-40cb-a93d-a0137ad9e148/7v6IF1qXi5.lottie"
-              style={{ width: '200px', height: '200px', zIndex: 10 }}
-              autoplay
-              loop
-            ></dotlottie-wc>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
+            Select a Resume Template
+          </h1>
+          <p className="text-sm text-[#6B7280] max-w-2xl leading-relaxed">
+            All 12 templates are 100% deterministic, ATS-compatible, and consume the exact same structured data. You can switch layouts at any time without losing your content.
+          </p>
         </div>
 
         {/* Category Filter Tabs (Pill-style row) */}

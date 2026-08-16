@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PortfolioData } from '../types';
 import { checkResume, CheckReport, matchJobDescription } from '../lib/resume-checker';
-import { ShieldCheck, X, AlertTriangle, CheckCircle2, AlertCircle, ArrowRight, Briefcase } from 'lucide-react';
+import { ShieldCheck, X, AlertTriangle, CheckCircle2, AlertCircle, ArrowRight, Briefcase, Loader2 } from 'lucide-react';
 import { TabType } from './FormBuilder';
 
 interface ResumeCheckPanelProps {
@@ -75,39 +75,15 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
         <div className="flex-1 overflow-y-auto bg-white p-4">
           {isChecking && activeTab === 'checks' ? (
             <div className="flex flex-col items-center justify-center h-full text-[#6B7280] p-6 space-y-4">
-              <div className="w-[140px] h-[140px] flex items-center justify-center">
-                {/* @ts-ignore */}
-                <dotlottie-wc
-                  src="https://lottie.host/90b8f637-0021-46aa-882c-661c6299ea46/reLdmA02iY.lottie"
-                  style={{ width: '140px', height: '140px' }}
-                  autoplay
-                  loop
-                ></dotlottie-wc>
-              </div>
+              <Loader2 className="w-10 h-10 animate-spin text-[#2563EB]" />
               <p className="text-xs font-medium text-[#111827]">Analyzing your resume content...</p>
             </div>
           ) : activeTab === 'checks' && report ? (
             <div className="space-y-6">
               
               {/* Overall Status summary */}
-              <div className="bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] p-4 text-center flex flex-col items-center space-y-2 relative overflow-hidden">
+              <div className="bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] p-4 text-center space-y-2">
                 <p className="text-[10px] font-bold tracking-widest uppercase text-[#6B7280]">Resume Readiness</p>
-                
-                {/* Delightful status feedback micro-animation */}
-                <div className="w-[80px] h-[80px] flex items-center justify-center -my-2">
-                  {/* @ts-ignore */}
-                  <dotlottie-wc
-                    src={
-                      report.overallStatus === 'Excellent' || report.overallStatus === 'Good'
-                        ? 'https://lottie.host/acadc4e0-a2ac-4929-8d36-23f5f70555fd/n4X7vhkYKN.lottie'
-                        : 'https://lottie.host/90b8f637-0021-46aa-882c-661c6299ea46/reLdmA02iY.lottie'
-                    }
-                    style={{ width: '80px', height: '80px' }}
-                    autoplay
-                    loop
-                  ></dotlottie-wc>
-                </div>
-
                 <div className="flex justify-center items-center gap-2">
                   {report.overallStatus === 'Excellent' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
                   {report.overallStatus === 'Good' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
