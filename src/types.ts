@@ -131,85 +131,38 @@ export const DEFAULT_CUSTOMIZATION: CustomizationSettings = {
   hiddenSections: [],
 };
 
-export const BLANK_RESUME_DATA: PortfolioData = {
+export const EMPTY_RESUME_DATA: PortfolioData = {
   templateId: 'minimal',
-  resumeName: 'My Resume',
+  resumeName: 'Untitled Resume',
   customization: DEFAULT_CUSTOMIZATION,
   basicInfo: {
-    firstName: 'Jane',
-    lastName: 'Doe',
-    name: 'Jane Doe',
-    tagline: 'Software Engineer',
-    email: 'jane.doe@example.com',
-    phone: '+1 (123) 456-7890',
-    location: 'San Francisco, CA',
-    website: 'https://github.com/janedoe',
+    firstName: '',
+    lastName: '',
+    name: '',
+    tagline: '',
+    email: '',
+    phone: '',
+    location: '',
+    website: '',
     photo: '',
-    summary: 'Detail-oriented and passionate Software Engineer with experience in building clean, highly responsive web applications. Enthusiastic about writing maintainable code, solving complex architectural challenges, and collaborating with cross-functional teams to deliver exceptional user value.',
-    linkedin: 'https://linkedin.com/in/janedoe',
-    github: 'https://github.com/janedoe',
-    portfolio: 'https://example.com',
+    summary: '',
+    linkedin: '',
+    github: '',
+    portfolio: '',
   },
-  links: [
-    { label: 'LinkedIn', url: 'https://linkedin.com/in/janedoe' },
-    { label: 'GitHub', url: 'https://github.com/janedoe' },
-  ],
-  education: [
-    {
-      institution: 'State University',
-      degree: 'Bachelor of Science',
-      field: 'Computer Science',
-      startDate: '2018',
-      endDate: '2022',
-      gpa: '3.8 / 4.0',
-      description: 'Graduated with Honors. Relevant coursework: Data Structures & Algorithms, Systems Engineering, Databases, Web Development.',
-    },
-  ],
-  experience: [
-    {
-      org: 'Innovate Tech Corp',
-      role: 'Software Engineer',
-      startDate: '2022',
-      endDate: 'Present',
-      bullets: [
-        'Designed and implemented responsive web user interfaces using React, TypeScript, and Tailwind CSS, boosting user engagement metrics by 20%.',
-        'Built and optimized server-side APIs using Node.js and Express, reducing database query response latencies by 30%.',
-        'Established automated unit testing pipelines, increasing code coverage standards from 60% to 85% across critical modules.',
-      ],
-    },
-  ],
-  projects: [
-    {
-      title: 'E-Commerce Checkout Engine',
-      description: 'An optimized, responsive e-commerce shopping experience with instant visual cart state management.',
-      tech: ['React', 'TypeScript', 'Tailwind CSS', 'LocalStorage'],
-      link: 'https://github.com/janedoe/ecommerce-checkout',
-    },
-  ],
-  skills: [
-    'React',
-    'TypeScript',
-    'JavaScript',
-    'Node.js',
-    'Express',
-    'Tailwind CSS',
-    'HTML5 & CSS3',
-    'SQL',
-    'Git',
-  ],
-  skillCategories: [
-    { name: 'Languages', skills: ['TypeScript', 'JavaScript', 'SQL', 'HTML5/CSS3'] },
-    { name: 'Frameworks & Libraries', skills: ['React', 'Express', 'Tailwind CSS', 'Redux'] },
-    { name: 'Tools & Platforms', skills: ['Git', 'Node.js', 'PostgreSQL', 'Vite'] },
-  ],
-  achievements: [
-    {
-      title: 'Innovate Hackathon Champion',
-      issuer: 'Tech Hack Association',
-      date: '2023',
-    },
-  ],
+  links: [],
+  education: [],
+  experience: [],
+  projects: [],
+  skills: [],
+  skillCategories: [],
+  achievements: [],
+  certifications: [],
+  publications: [],
+  customSections: [],
 };
+
+export const BLANK_RESUME_DATA: PortfolioData = EMPTY_RESUME_DATA;
 
 export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
   templateId: 'minimal',
@@ -338,3 +291,11 @@ export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
     },
   ],
 };
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'dotlottie-wc': any;
+    }
+  }
+}

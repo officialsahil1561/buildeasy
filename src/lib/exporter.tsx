@@ -1,7 +1,138 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { PortfolioData } from '../types';
 import TemplateRenderer from '../components/TemplateRenderer';
+
+export interface ExportResult {
+  success: boolean;
+  filename: string;
+  sizeKb: number;
+  blob?: Blob;
+  error?: string;
+}
+
+export async function generatePdfBlobAndDownload(data: PortfolioData): Promise<ExportResult> {
+  const firstName = data.basicInfo?.firstName || data.basicInfo?.name?.split(' ')[0] || 'Resume';
+  const lastName = data.basicInfo?.lastName || data.basicInfo?.name?.split(' ').slice(1).join(' ') || '';
+  const cleanFirst = firstName.trim().replace(/[^a-zA-Z0-9]/g, '');
+  const cleanLast = lastName.trim().replace(/[^a-zA-Z0-9]/g, '');
+  const filename = cleanFirst && cleanLast ? `${cleanFirst}_${cleanLast}_Resume.pdf` : cleanFirst ? `${cleanFirst}_Resume.pdf` : 'BuildEasy_Resume.pdf';
+
+  const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
+  const pdfWidth = isA4 ? 210 : 215.9; // mm
+  const pdfHeight = isA4 ? 297 : 279.4; // mm
+
+  // Create offscreen container
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '-9999px';
+  container.style.width = isA4 ? '794px' : '816px';
+  container.style.backgroundColor = '#ffffff';
+  document.body.appendChild(container);
+
+  const root = createRoot(container);
+  root.render(
+    <div style={{ width: '100%', backgroundColor: '#ffffff' }}>
+      <TemplateRenderer data={data} />
+    </div>
+  );
+
+  // Wait for fonts & DOM rendering
+  await new Promise((resolve) => setTimeout(resolve, 600));
+
+  try {
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+    });
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: isA4 ? 'a4' : 'letter',
+    });
+
+    // Calculate exact canvas height per PDF page ratio
+    const pageCanvasHeight = (canvas.width * pdfHeight) / pdfWidth;
+    const totalPages = Math.max(1, Math.ceil((canvas.height - 10) / pageCanvasHeight));
+
+    for (let page = 0; page < totalPages; page++) {
+      if (page > 0) pdf.addPage();
+
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = pageCanvasHeight;
+      const ctx = pageCanvas.getContext('2d');
+
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+        const sourceY = page * pageCanvasHeight;
+        const sourceH = Math.min(pageCanvasHeight, canvas.height - sourceY);
+
+        if (sourceH > 0) {
+          ctx.drawImage(
+            canvas,
+            0,
+            sourceY,
+            canvas.width,
+            sourceH,
+            0,
+            0,
+            canvas.width,
+            sourceH
+          );
+        }
+
+        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.98);
+        pdf.addImage(pageImgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      }
+    }
+
+    const pdfBlob = pdf.output('blob');
+    const sizeKb = Math.round((pdfBlob.size / 1024) * 10) / 10;
+
+    // Trigger download
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // Clean up offscreen container
+    root.unmount();
+    document.body.removeChild(container);
+
+    return {
+      success: true,
+      filename,
+      sizeKb,
+      blob: pdfBlob,
+    };
+  } catch (err: any) {
+    // Cleanup container
+    try {
+      root.unmount();
+      document.body.removeChild(container);
+    } catch (_) {}
+
+    return {
+      success: false,
+      filename,
+      sizeKb: 0,
+      error: err.message || 'Failed to generate PDF',
+    };
+  }
+}
 
 export async function triggerPdfExport(data: PortfolioData): Promise<void> {
   const baseName = data.resumeName || data.basicInfo?.name || 'My_Resume';
@@ -15,7 +146,6 @@ export async function triggerPdfExport(data: PortfolioData): Promise<void> {
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    // Fallback if popups blocked
     const originalTitle = document.title;
     document.title = filename;
     window.print();
@@ -27,22 +157,19 @@ export async function triggerPdfExport(data: PortfolioData): Promise<void> {
 
   printWindow.document.title = filename;
 
-  // Clone head styles to ensure all Tailwind & custom theme fonts are available
   document.querySelectorAll('link, style').forEach((node) => {
     printWindow.document.head.appendChild(node.cloneNode(true));
   });
 
-  // Inject standard Google Fonts Link explicitly to ensure they render beautifully in new tab
   const fontLink = printWindow.document.createElement('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600&display=swap';
   printWindow.document.head.appendChild(fontLink);
 
-  // Inject style reset
   const styleReset = printWindow.document.createElement('style');
   styleReset.innerHTML = `
     @page {
-      size: ${data.customization?.pageSize === 'a4' ? 'A4' : 'letter'};
+      size: ${data.customization?.pageSize?.toLowerCase() === 'a4' ? 'A4' : 'letter'};
       margin: 0;
     }
     body {
@@ -100,16 +227,23 @@ export async function triggerPdfExport(data: PortfolioData): Promise<void> {
         box-shadow: none !important;
         margin: 0 !important;
         border: none !important;
+        width: 100% !important;
+      }
+      section, article, .space-y-5 > div, .space-y-4 > div, .space-y-3 > div, .space-y-2 > div {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      h1, h2, h3, h4 {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
       }
     }
   `;
   printWindow.document.head.appendChild(styleReset);
 
-  // Set up container structure
   const bodyContainer = printWindow.document.createElement('div');
   bodyContainer.className = 'min-h-screen bg-gray-100 flex flex-col';
 
-  // Create instructions banner
   const banner = printWindow.document.createElement('div');
   banner.className = 'print-instruction-banner';
   banner.innerHTML = `
@@ -118,7 +252,7 @@ export async function triggerPdfExport(data: PortfolioData): Promise<void> {
       <div>
         <strong style="display: block; font-size: 14px;">Your PDF Resume is Ready</strong>
         <span style="font-size: 11px; color: #9CA3AF; display: block; margin-top: 2px;">
-          Choose <strong>"Save as PDF"</strong> as Destination and ensure <strong>"Background graphics"</strong> is checked in the print settings.
+          Choose <strong>"Save as PDF"</strong> as Destination and ensure <strong>"Background graphics"</strong> is checked.
         </span>
       </div>
     </div>
@@ -134,17 +268,17 @@ export async function triggerPdfExport(data: PortfolioData): Promise<void> {
   printRoot.className = 'flex-1 flex justify-center items-start py-8 px-4 bg-gray-100 print:bg-white print:py-0 print:px-0';
 
   const innerWrapper = printWindow.document.createElement('div');
-  innerWrapper.className = 'resume-container-sheet w-[816px] bg-white shadow-xl print:shadow-none border border-gray-200 print:border-none';
+  const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
+  const widthClass = isA4 ? 'w-[794px]' : 'w-[816px]';
+  innerWrapper.className = `resume-container-sheet ${widthClass} bg-white shadow-xl print:shadow-none border border-gray-200 print:border-none`;
   printRoot.appendChild(innerWrapper);
   bodyContainer.appendChild(printRoot);
 
   printWindow.document.body.appendChild(bodyContainer);
 
-  // Render React tree using React 18 createRoot
   const root = createRoot(innerWrapper);
   root.render(<TemplateRenderer data={data} />);
 
-  // Trigger print after rendering completes
   setTimeout(() => {
     printWindow.print();
   }, 450);

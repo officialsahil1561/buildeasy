@@ -9,6 +9,7 @@ interface HeaderProps {
   onNavigateHome: () => void;
   onStartBuilder: () => void;
   onReset: () => void;
+  hasResumeData?: boolean;
 }
 
 export default function Header({
@@ -17,6 +18,7 @@ export default function Header({
   onNavigateHome,
   onStartBuilder,
   onReset,
+  hasResumeData,
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -154,7 +156,7 @@ export default function Header({
                   onClick={onStartBuilder}
                   className="h-[40px] px-5 rounded-[7px] bg-[#111111] text-white text-[13.5px] lg:text-[14px] font-semibold hover:bg-[#242424] hover:-translate-y-px transition-all duration-150 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#111111] focus:ring-offset-2"
                 >
-                  <span>Create My Resume</span>
+                  <span>{hasResumeData ? 'Resume Builder' : 'Create My Resume'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               ) : (
@@ -234,7 +236,7 @@ export default function Header({
               onClick={handleMobileCtaClick}
               className="w-full h-[44px] rounded-[7px] bg-[#111111] text-white text-[14px] font-semibold hover:bg-[#242424] transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Create My Resume</span>
+              <span>{hasResumeData ? 'Resume Builder' : 'Create My Resume'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

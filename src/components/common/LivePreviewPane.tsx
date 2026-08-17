@@ -1,6 +1,7 @@
 import React from 'react';
 import { PortfolioData } from '../../types';
 import TemplateRenderer from '../TemplateRenderer';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 interface LivePreviewPaneProps {
   data: PortfolioData;
@@ -41,7 +42,7 @@ export default function LivePreviewPane({
           }
           
           @page {
-            size: ${data.customization?.pageSize === 'a4' ? 'A4' : 'letter'} portrait;
+            size: ${data.customization?.pageSize?.toLowerCase() === 'a4' ? 'A4' : 'letter'} portrait;
             margin: 0;
           }
 /* Spacing overrides */
@@ -70,7 +71,9 @@ export default function LivePreviewPane({
           ` : ''}
         `}} />
 
-        <TemplateRenderer data={data} />
+        <ErrorBoundary>
+          <TemplateRenderer data={data} />
+        </ErrorBoundary>
       </div>
     </div>
   );

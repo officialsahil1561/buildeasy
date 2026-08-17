@@ -1,3 +1,22 @@
+export function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function containsTerm(text: string, term: string): boolean {
+  const normalizedTerm = term.trim();
+
+  if (!normalizedTerm) return false;
+
+  const escaped = escapeRegExp(normalizedTerm);
+
+  const regex = new RegExp(
+    `(?<![A-Za-z0-9_])${escaped}(?![A-Za-z0-9_])`,
+    'i'
+  );
+
+  return regex.test(text);
+}
+
 export function sanitizeUrl(url: string | undefined): string {
   if (!url) return '';
   const trimmed = url.trim();

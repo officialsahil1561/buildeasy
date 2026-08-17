@@ -246,11 +246,11 @@ export default function ScreenTemplateSelect({
               key={tpl.id}
               id={`template-card-${tpl.id}`}
               selected={selectedTemplate === tpl.id}
-              onSelect={() => onSelectTemplate(tpl.id)}
+              onClick={() => onSelectTemplate(tpl.id)}
               title={tpl.title}
               badge={tpl.badge}
               description={tpl.description}
-              previewElements={tpl.previewElements}
+              thumbnail={tpl.previewElements}
             />
           ))}
         </div>

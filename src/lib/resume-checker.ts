@@ -1,4 +1,5 @@
 import { PortfolioData } from '../types';
+import { containsTerm } from './utils';
 
 export type CheckStatus = 'PASS' | 'WARNING' | 'ERROR';
 
@@ -205,22 +206,28 @@ export function checkResume(data: PortfolioData): CheckReport {
 
   // 8. PLACEHOLDER DETECTION
   const placeholderPatterns = [
+    /Jane Doe/i,
     /John Doe/i,
     /Alex Morgan/i,
+    /First Last/i,
     /example\.com/i,
+    /jane\.doe@example\.com/i,
     /example@gmail\.com/i,
     /555-555/i,
     /555-019-2834/i,
     /Lorem ipsum/i,
     /Your Name/i,
     /Company Name/i,
+    /University Name/i,
+    /State University/i,
+    /Innovate Tech Corp/i,
     /alex\.morgan/i
   ];
   
   const resumeJson = JSON.stringify(data);
   for (const pattern of placeholderPatterns) {
     if (pattern.test(resumeJson)) {
-      checks.push({ id: 'placeholder-detected', category: 'CONTENT', status: 'ERROR', message: 'Replace placeholder information before applying.', tabTarget: 'basic' });
+      checks.push({ id: 'placeholder-detected', category: 'CONTENT', status: 'ERROR', message: 'Replace sample placeholder text with your actual personal details before applying.', tabTarget: 'basic' });
       break;
     }
   }
@@ -289,32 +296,39 @@ function isValidUrl(string: string): boolean {
 
 // JD Matching
 export function matchJobDescription(resumeData: PortfolioData, jobDescription: string) {
-  // A simple heuristic extractor. In a real app, this might use compromise.js or similar.
   const commonTechSkills = [
-    'react', 'typescript', 'node', 'node.js', 'javascript', 'python', 'java', 'c++', 'c#',
-    'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'sql', 'mysql', 'postgresql', 'mongodb',
-    'graphql', 'rest api', 'agile', 'scrum', 'figma', 'ui/ux', 'machine learning', 'data science',
-    'ruby', 'php', 'swift', 'kotlin', 'android', 'ios', 'angular', 'vue', 'next.js', 'tailwind',
-    'css', 'html', 'git', 'ci/cd', 'linux', 'bash', 'salesforce', 'jira'
+    'React', 'TypeScript', 'Node.js', 'JavaScript', 'Python', 'Java', 'C++', 'C#',
+    'F#', '.NET', '.NET Core', 'ASP.NET', 'ASP.NET Core', 'Objective-C', 'Objective-C++',
+    'C/C++', 'C++17', 'C++20', 'CMake', 'Vue.js', 'Next.js', 'Nuxt.js', 'Angular',
+    'AWS', 'AWS Lambda', 'Amazon S3', 'Azure', 'GCP', 'Docker', 'Kubernetes',
+    'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST API', 'GitHub Actions',
+    'Agile', 'Scrum', 'Figma', 'UI/UX', 'Machine Learning', 'Data Science',
+    'Ruby', 'PHP', 'Swift', 'Kotlin', 'Android', 'iOS', 'Tailwind',
+    'CSS', 'HTML', 'Git', 'CI/CD', 'Linux', 'Bash', 'Salesforce', 'Jira', 'Project Management',
+    'Leadership', 'Communication', 'Problem Solving', 'Collaboration', 'Unit Testing'
   ];
 
-  const jdLower = jobDescription.toLowerCase();
-  
-  const extractedKeywords = commonTechSkills.filter(skill => jdLower.includes(skill.toLowerCase()));
-  
-  // Create a blob of text from the resume
-  const resumeBlob = JSON.stringify(resumeData).toLowerCase();
+  if (!jobDescription || !jobDescription.trim()) {
+    return { matched: [], missing: [], matchPercentage: 0, disclaimer: '' };
+  }
+
+  const extractedKeywords = commonTechSkills.filter(skill => containsTerm(jobDescription, skill));
+  const resumeBlob = JSON.stringify(resumeData);
 
   const matched: string[] = [];
   const missing: string[] = [];
 
   extractedKeywords.forEach(kw => {
-    if (resumeBlob.includes(kw.toLowerCase())) {
+    if (containsTerm(resumeBlob, kw)) {
       matched.push(kw);
     } else {
       missing.push(kw);
     }
   });
 
-  return { matched, missing };
+  const total = matched.length + missing.length;
+  const matchPercentage = total > 0 ? Math.round((matched.length / total) * 100) : 100;
+  const disclaimer = 'Only add keywords that accurately reflect your experience.';
+
+  return { matched, missing, matchPercentage, disclaimer };
 }

@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { PortfolioData } from '../../types';
 import TemplateRenderer from '../TemplateRenderer';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 interface ScaledResumePreviewProps {
   data: PortfolioData;
@@ -75,7 +76,9 @@ export default function ScaledResumePreview({
         }}
         className="bg-white"
       >
-        <TemplateRenderer data={data} />
+        <ErrorBoundary>
+          <TemplateRenderer data={data} />
+        </ErrorBoundary>
       </div>
     </div>
   );

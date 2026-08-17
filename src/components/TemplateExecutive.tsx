@@ -1,6 +1,7 @@
 import React from 'react';
 import { PortfolioData } from '../types';
 import { getSectionStyle, getRootStyles } from '../lib/template-helpers';
+import { ResumeSection, EntryHeader, EntryBullets } from './common/ResumePrimitives';
 
 export default function TemplateExecutive({ data }: { data: PortfolioData }) {
   const { basicInfo, links, education, experience, projects, skills, skillCategories, achievements } = data;
@@ -96,61 +97,48 @@ export default function TemplateExecutive({ data }: { data: PortfolioData }) {
       <div className="flex flex-col gap-6">
         
         {displaySummary && (
-          <section style={getSectionStyle('summary', data.customization)} className="space-y-2 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Executive Summary
-            </h2>
-            <p className="text-[10pt] text-gray-800 leading-relaxed pt-1">
-              {displaySummary}
-            </p>
-          </section>
+          <ResumeSection title="Executive Summary" style={getSectionStyle('summary', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <p className="text-[10pt] text-gray-800 leading-relaxed">{displaySummary}</p>
+          </ResumeSection>
         )}
 
         {experience.length > 0 && (
-          <section style={getSectionStyle('experience', data.customization)} className="space-y-3 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Professional Experience
-            </h2>
-            <div className="space-y-5 pt-1">
+          <ResumeSection title="Professional Experience" style={getSectionStyle('experience', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <div className="space-y-5">
               {experience.map((exp, idx) => (
                 <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between items-baseline">
-                    <div className="flex flex-wrap items-baseline gap-1">
-                      <strong className="text-[11pt] text-gray-900">{exp.role}</strong>
-                      <span className="text-gray-400">|</span>
-                      <span className="text-[10.5pt] text-gray-800 font-semibold">{exp.org}</span>
-                      {exp.location && <span className="text-gray-500 text-[9.5pt] ml-1 font-normal">({exp.location})</span>}
-                    </div>
-                    <span className="text-[9.5pt] text-gray-600 font-medium shrink-0 bg-gray-50 px-2 py-0.5 rounded">{exp.startDate} – {exp.endDate}</span>
-                  </div>
-                  {exp.bullets.length > 0 && (
-                    <ul className="list-disc list-outside ml-5 space-y-1.5 text-[10pt] text-gray-750 leading-relaxed">
-                      {exp.bullets.map((bullet, bIdx) => (
-                        <li key={bIdx}>{bullet}</li>
-                      ))}
-                    </ul>
-                  )}
+                  <EntryHeader
+                    left={
+                      <div className="flex flex-wrap items-baseline gap-1">
+                        <strong className="text-[11pt] text-gray-900">{exp.role}</strong>
+                        <span className="text-gray-400">|</span>
+                        <span className="text-[10.5pt] text-gray-800 font-semibold">{exp.org}</span>
+                        {exp.location && <span className="text-gray-500 text-[9.5pt] ml-1 font-normal">({exp.location})</span>}
+                      </div>
+                    }
+                    right={`${exp.startDate} – ${exp.endDate}`}
+                  />
+                  {exp.bullets.length > 0 && <EntryBullets bullets={exp.bullets} className="list-disc list-outside ml-5 space-y-1.5 text-[10pt] text-gray-750 leading-relaxed" />}
                 </div>
               ))}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
         {education.length > 0 && (
-          <section style={getSectionStyle('education', data.customization)} className="space-y-3 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Education
-            </h2>
-            <div className="space-y-3 pt-1">
+          <ResumeSection title="Education" style={getSectionStyle('education', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <div className="space-y-3">
               {education.map((edu, idx) => (
                 <div key={idx} className="space-y-1">
-                  <div className="flex justify-between items-baseline">
-                    <div>
-                      <strong className="text-[11pt] text-gray-900">{edu.institution}</strong>
-                      {edu.location && <span className="text-gray-500 text-[9.5pt] ml-2 font-normal">({edu.location})</span>}
-                    </div>
-                    <span className="text-[9.5pt] text-gray-600 font-medium shrink-0 bg-gray-50 px-2 py-0.5 rounded">{edu.startDate} – {edu.endDate}</span>
-                  </div>
+                  <EntryHeader
+                    left={
+                      <div>
+                        <strong className="text-[11pt] text-gray-900">{edu.institution}</strong>
+                        {edu.location && <span className="text-gray-500 text-[9.5pt] ml-2 font-normal">({edu.location})</span>}
+                      </div>
+                    }
+                    right={`${edu.startDate} – ${edu.endDate}`}
+                  />
                   <div className="flex justify-between text-[10pt] text-gray-800">
                     <span>{edu.degree}{edu.field ? `, ${edu.field}` : ''}</span>
                     {edu.gpa && <span className="font-medium">GPA: {edu.gpa}</span>}
@@ -161,40 +149,34 @@ export default function TemplateExecutive({ data }: { data: PortfolioData }) {
                 </div>
               ))}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
         {projects.length > 0 && (
-          <section style={getSectionStyle('projects', data.customization)} className="space-y-3 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Key Projects
-            </h2>
-            <div className="space-y-4 pt-1">
+          <ResumeSection title="Key Projects" style={getSectionStyle('projects', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <div className="space-y-4">
               {projects.map((proj, idx) => (
                 <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between items-baseline">
-                    <strong className="text-[11pt] text-gray-900">{proj.title}</strong>
-                    <div className="flex gap-3 text-[9.5pt]">
-                      {proj.link && (
-                        <a href={proj.link} target="_blank" rel="noreferrer" className="text-gray-900 hover:underline font-semibold">
-                          Live Demo ↗
-                        </a>
-                      )}
-                      {proj.githubUrl && (
-                        <a href={proj.githubUrl} target="_blank" rel="noreferrer" className="text-gray-900 hover:underline font-semibold">
-                          GitHub ↗
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                  <EntryHeader
+                    left={<strong className="text-[11pt] text-gray-900">{proj.title}</strong>}
+                    right={
+                      <div className="flex gap-3 text-[9.5pt] bg-transparent p-0 rounded-none text-gray-900">
+                        {proj.link && (
+                          <a href={proj.link} target="_blank" rel="noreferrer" className="text-gray-900 hover:underline font-semibold">
+                            Live Demo ↗
+                          </a>
+                        )}
+                        {proj.githubUrl && (
+                          <a href={proj.githubUrl} target="_blank" rel="noreferrer" className="text-gray-900 hover:underline font-semibold">
+                            GitHub ↗
+                          </a>
+                        )}
+                      </div>
+                    }
+                    rightClassName="shrink-0 ml-2"
+                  />
                   <p className="text-[10pt] text-gray-700 leading-relaxed">{proj.description}</p>
-                  {proj.bullets && proj.bullets.length > 0 && (
-                    <ul className="list-disc list-outside ml-5 space-y-1 text-[9.5pt] text-gray-700 leading-relaxed">
-                      {proj.bullets.map((bullet, bIdx) => (
-                        <li key={bIdx}>{bullet}</li>
-                      ))}
-                    </ul>
-                  )}
+                  {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="list-disc list-outside ml-5 space-y-1 text-[9.5pt] text-gray-700 leading-relaxed" />}
                   {proj.tech && proj.tech.length > 0 && (
                     <p className="text-[9pt] text-gray-500">
                       <strong className="text-gray-800 font-semibold">Key Technologies:</strong> {proj.tech.join(' • ')}
@@ -203,14 +185,11 @@ export default function TemplateExecutive({ data }: { data: PortfolioData }) {
                 </div>
               ))}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
         {((skillCategories && skillCategories.length > 0 && skillCategories.some(c => c.skills.length > 0)) || skills.length > 0) && (
-          <section style={getSectionStyle('skills', data.customization)} className="space-y-2 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Core Competencies
-            </h2>
+          <ResumeSection title="Core Competencies" style={getSectionStyle('skills', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
             <div className="space-y-1.5 pt-1 text-[10pt] text-gray-800">
               {skillCategories && skillCategories.length > 0 && skillCategories.some(c => c.skills.length > 0) ? (
                 skillCategories
@@ -225,21 +204,15 @@ export default function TemplateExecutive({ data }: { data: PortfolioData }) {
                 <p>{skills.join(' • ')}</p>
               )}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
         {data.certifications && data.certifications.length > 0 && (
-          <section style={getSectionStyle('certifications', data.customization)} className="space-y-2 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Certifications
-            </h2>
-            <div className="space-y-2 pt-1">
+          <ResumeSection title="Certifications" style={getSectionStyle('certifications', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <div className="space-y-2">
               {data.certifications.map((cert, idx) => (
                 <div key={idx} className="space-y-1 text-[10pt] text-gray-850">
-                  <div className="flex justify-between items-baseline">
-                    <strong className="text-gray-900">{cert.title}</strong>
-                    <span className="text-gray-500 font-medium shrink-0 bg-gray-50 px-2 py-0.5 rounded">{cert.date}</span>
-                  </div>
+                  <EntryHeader left={<strong className="text-gray-900">{cert.title}</strong>} right={cert.date} />
                   <div className="text-gray-700 text-[9.5pt]">{cert.subtitle}</div>
                   {cert.description && (
                     <p className="text-gray-650 text-[9.5pt] pt-0.5">{cert.description}</p>
@@ -247,39 +220,30 @@ export default function TemplateExecutive({ data }: { data: PortfolioData }) {
                 </div>
               ))}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
         {achievements.length > 0 && (
-          <section style={getSectionStyle('achievements', data.customization)} className="space-y-2 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Honors & Awards
-            </h2>
-            <div className="space-y-2 pt-1">
+          <ResumeSection title="Honors & Awards" style={getSectionStyle('achievements', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <div className="space-y-2">
               {achievements.map((ach, idx) => (
                 <div key={idx} className="flex justify-between text-[10pt] text-gray-800">
                   <span>
                     <strong className="text-gray-900">{ach.title}</strong> — {ach.issuer}
                   </span>
-                  <span className="text-gray-500 font-medium shrink-0 bg-gray-50 px-2 py-0.5 rounded">{ach.date}</span>
+                  <span className="text-[9.5pt] text-gray-500 font-medium shrink-0 ml-2 bg-gray-50 px-2 py-0.5 rounded">{ach.date}</span>
                 </div>
               ))}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
         {data.publications && data.publications.length > 0 && (
-          <section style={getSectionStyle('publications', data.customization)} className="space-y-2 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              Publications
-            </h2>
-            <div className="space-y-2 pt-1">
+          <ResumeSection title="Publications" style={getSectionStyle('publications', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+            <div className="space-y-2">
               {data.publications.map((pub, idx) => (
                 <div key={idx} className="space-y-1 text-[10pt] text-gray-850">
-                  <div className="flex justify-between items-baseline">
-                    <strong className="text-gray-900">{pub.title}</strong>
-                    <span className="text-gray-600 font-medium shrink-0 bg-gray-50 px-2 py-0.5 rounded">{pub.date}</span>
-                  </div>
+                  <EntryHeader left={<strong className="text-gray-900">{pub.title}</strong>} right={pub.date} />
                   <div className="text-gray-700 text-[9.5pt]">{pub.subtitle}</div>
                   {pub.description && (
                     <p className="text-gray-650 text-[9.5pt] pt-0.5">{pub.description}</p>
@@ -287,32 +251,28 @@ export default function TemplateExecutive({ data }: { data: PortfolioData }) {
                 </div>
               ))}
             </div>
-          </section>
+          </ResumeSection>
         )}
 
-        {data.customSections && data.customSections.length > 0 && data.customSections[0].items.length > 0 && (
-          <section style={getSectionStyle('custom', data.customization)} className="space-y-2 font-sans">
-            <h2 className="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
-              {data.customSections[0].name || 'CUSTOM SECTION'}
-            </h2>
-            <div className="space-y-2 pt-1">
-              {data.customSections[0].items.map((item, idx) => (
-                <div key={idx} className="space-y-1 text-[10pt] text-gray-850">
-                  <div className="flex justify-between items-baseline">
-                    <strong className="text-gray-900">{item.title}</strong>
-                    <span className="text-gray-600 font-medium shrink-0 bg-gray-50 px-2 py-0.5 rounded">{item.date}</span>
+        {data.customSections && data.customSections.length > 0 && data.customSections.map((cs, csIdx) => (
+          cs.items && cs.items.length > 0 && (
+            <ResumeSection key={cs.id || csIdx} title={cs.name || 'CUSTOM SECTION'} style={getSectionStyle('custom', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+              <div className="space-y-2">
+                {cs.items.map((item, idx) => (
+                  <div key={idx} className="space-y-1 text-[10pt] text-gray-850">
+                    <EntryHeader left={<strong className="text-gray-900">{item.title}</strong>} right={item.date} />
+                    {item.subtitle && (
+                      <div className="text-gray-750 text-[9.5pt]">{item.subtitle}</div>
+                    )}
+                    {item.description && (
+                      <p className="text-gray-650 text-[9.5pt] pt-0.5">{item.description}</p>
+                    )}
                   </div>
-                  {item.subtitle && (
-                    <div className="text-gray-750 text-[9.5pt]">{item.subtitle}</div>
-                  )}
-                  {item.description && (
-                    <p className="text-gray-650 text-[9.5pt] pt-0.5">{item.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </ResumeSection>
+          )
+        ))}
 
       </div>
     </div>

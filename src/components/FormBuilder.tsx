@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { PortfolioData } from '../types';
-import { ChevronRight, Settings, Layout, Link2, Briefcase, GraduationCap, Code, Lightbulb, Copy, Trash2, Plus, GripVertical, AlertCircle, Image as ImageIcon, Award, BookOpen, Sparkles } from 'lucide-react';
+import { PortfolioData, INITIAL_PORTFOLIO_DATA } from '../types';
+import { ChevronRight, Settings, Layout, Link2, Briefcase, GraduationCap, Code, Lightbulb, Copy, Trash2, Plus, GripVertical, AlertCircle, Image as ImageIcon, Award, BookOpen, Sparkles, FileSpreadsheet } from 'lucide-react';
 import { SortableList, SortableItem } from './builder/editors/SortableList';
 import { validateImageFile } from '../lib/utils';
+import ConfirmModal from './common/ConfirmModal';
 
 
 export type TabType = 
@@ -38,6 +39,7 @@ export default function FormBuilder({
   // For sections that support accordions
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [isSampleDataConfirmOpen, setIsSampleDataConfirmOpen] = useState(false);
 
 
   const updateField = <K extends keyof PortfolioData>(field: K, value: PortfolioData[K]) => {
@@ -81,9 +83,38 @@ export default function FormBuilder({
             />
           </div>
           <div className="h-px bg-[#E5E7EB] mb-3" />
-          <h2 className="text-sm font-bold text-[#111827]">Resume Sections</h2>
-          <p className="text-xs text-[#6B7280] mt-0.5">Select a section to edit your content.</p>
+          <div className="flex items-center justify-between mt-1">
+            <div>
+              <h2 className="text-sm font-bold text-[#111827]">Resume Sections</h2>
+              <p className="text-xs text-[#6B7280] mt-0.5">Select a section to edit your content.</p>
+            </div>
+            <button
+              onClick={() => setIsSampleDataConfirmOpen(true)}
+              className="px-2.5 py-1 text-[11px] font-bold text-[#2563EB] bg-[#EFF6FF] hover:bg-[#DBEAFE] border border-[#BFDBFE] rounded-md flex items-center gap-1 transition-colors cursor-pointer"
+              title="Fill fields with realistic example resume content"
+            >
+              <FileSpreadsheet className="w-3 h-3" />
+              <span>Load Sample Data</span>
+            </button>
+          </div>
         </div>
+
+        <ConfirmModal
+          isOpen={isSampleDataConfirmOpen}
+          onClose={() => setIsSampleDataConfirmOpen(false)}
+          onConfirm={() => {
+            onChange({
+              ...INITIAL_PORTFOLIO_DATA,
+              templateId: data.templateId || 'minimal',
+              customization: data.customization || INITIAL_PORTFOLIO_DATA.customization,
+            });
+          }}
+          title="Load sample resume data?"
+          message="This will replace your current resume information with sample content. You can edit or clear it anytime."
+          confirmText="Load Sample Data"
+          cancelText="Cancel"
+          variant="primary"
+        />
         
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-2">
           {/* Static sections */}
@@ -236,7 +267,7 @@ export default function FormBuilder({
                         className="absolute -top-1 -right-1 bg-rose-600 text-white rounded-full p-1 shadow-sm hover:bg-rose-700 transition-colors"
                         title="Remove photo"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 aria-label="Delete" className="w-3 h-3" />
                       </button>
                     </div>
                   ) : (
@@ -291,7 +322,7 @@ export default function FormBuilder({
               <h2 className="text-xl font-bold text-[#111827]">Experience</h2>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
+                  const newId = crypto.randomUUID();
                   updateField('experience', [{ id: newId, role: '', org: '', startDate: '', endDate: '', current: false, bullets: [''] }, ...data.experience]);
                   setExpandedId(newId);
                 }}
@@ -321,7 +352,7 @@ export default function FormBuilder({
                         }
                       }}
                       onDuplicate={() => {
-                        const copy = { ...exp, id: Date.now().toString() };
+                        const copy = { ...exp, id: crypto.randomUUID() };
                         const newExp = [...data.experience];
                         newExp.splice(idx + 1, 0, copy);
                         updateField('experience', newExp);
@@ -411,8 +442,8 @@ export default function FormBuilder({
                                     const newExp = [...data.experience];
                                     newExp[idx].bullets.splice(bIdx, 1);
                                     updateField('experience', newExp);
-                                  }} className="mt-1.5 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors">
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                  }} aria-label="Delete" title="Delete" className="mt-1.5 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors">
+                                    <Trash2 aria-label="Delete" className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                               </SortableItem>
@@ -443,7 +474,7 @@ export default function FormBuilder({
               <h2 className="text-xl font-bold text-[#111827]">Education</h2>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
+                  const newId = crypto.randomUUID();
                   updateField('education', [{ id: newId, degree: '', institution: '', startDate: '', endDate: '', field: '' }, ...data.education]);
                   setExpandedId(newId);
                 }}
@@ -473,7 +504,7 @@ export default function FormBuilder({
                         }
                       }}
                       onDuplicate={() => {
-                        const copy = { ...edu, id: Date.now().toString() };
+                        const copy = { ...edu, id: crypto.randomUUID() };
                         const newEdu = [...data.education];
                         newEdu.splice(idx + 1, 0, copy);
                         updateField('education', newEdu);
@@ -549,7 +580,7 @@ export default function FormBuilder({
               <h2 className="text-xl font-bold text-[#111827]">Projects</h2>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
+                  const newId = crypto.randomUUID();
                   updateField('projects', [{ id: newId, title: '', description: '', tech: [], link: '' }, ...data.projects]);
                   setExpandedId(newId);
                 }}
@@ -579,7 +610,7 @@ export default function FormBuilder({
                         }
                       }}
                       onDuplicate={() => {
-                        const copy = { ...proj, id: Date.now().toString() };
+                        const copy = { ...proj, id: crypto.randomUUID() };
                         const newProj = [...data.projects];
                         newProj.splice(idx + 1, 0, copy);
                         updateField('projects', newProj);
@@ -660,8 +691,8 @@ export default function FormBuilder({
                                       newProj[idx].bullets!.splice(bIdx, 1);
                                       updateField('projects', newProj);
                                     }
-                                  }} className="mt-1.5 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors">
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                  }} aria-label="Delete" title="Delete" className="mt-1.5 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors">
+                                    <Trash2 aria-label="Delete" className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                               </SortableItem>
@@ -724,8 +755,8 @@ export default function FormBuilder({
                     </div>
                     <button onClick={() => {
                       updateField('links', data.links.filter((_, i) => i !== idx));
-                    }} className="mt-6 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors">
-                      <Trash2 className="w-4 h-4" />
+                    }} aria-label="Delete" title="Delete" className="mt-6 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors">
+                      <Trash2 aria-label="Delete" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -776,8 +807,8 @@ export default function FormBuilder({
                   {skill}
                   <button onClick={() => {
                     updateField('skills', data.skills.filter((_, i) => i !== idx));
-                  }} className="text-[#9CA3AF] hover:text-rose-500 rounded-full hover:bg-white transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
+                  }} aria-label="Delete" title="Delete" className="text-[#9CA3AF] hover:text-rose-500 rounded-full hover:bg-white transition-colors">
+                    <Trash2 aria-label="Delete" className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -792,7 +823,7 @@ export default function FormBuilder({
               <h2 className="text-xl font-bold text-[#111827]">Certifications</h2>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
+                  const newId = crypto.randomUUID();
                   const list = data.certifications || [];
                   updateField('certifications', [{ id: newId, title: '', subtitle: '', date: '', description: '' }, ...list]);
                   setExpandedId(newId);
@@ -824,7 +855,7 @@ export default function FormBuilder({
                         }
                       }}
                       onDuplicate={() => {
-                        const copy = { ...cert, id: Date.now().toString() };
+                        const copy = { ...cert, id: crypto.randomUUID() };
                         const newList = [...(data.certifications || [])];
                         newList.splice(idx + 1, 0, copy);
                         updateField('certifications', newList);
@@ -881,7 +912,7 @@ export default function FormBuilder({
               <h2 className="text-xl font-bold text-[#111827]">Honors & Awards</h2>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
+                  const newId = crypto.randomUUID();
                   updateField('achievements', [{ id: newId, title: '', issuer: '', date: '' }, ...data.achievements]);
                   setExpandedId(newId);
                 }}
@@ -911,7 +942,7 @@ export default function FormBuilder({
                         }
                       }}
                       onDuplicate={() => {
-                        const copy = { ...award, id: Date.now().toString() };
+                        const copy = { ...award, id: crypto.randomUUID() };
                         const newList = [...data.achievements];
                         newList.splice(idx + 1, 0, copy);
                         updateField('achievements', newList);
@@ -960,7 +991,7 @@ export default function FormBuilder({
               <h2 className="text-xl font-bold text-[#111827]">Publications</h2>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
+                  const newId = crypto.randomUUID();
                   const list = data.publications || [];
                   updateField('publications', [{ id: newId, title: '', subtitle: '', date: '', description: '' }, ...list]);
                   setExpandedId(newId);
@@ -992,7 +1023,7 @@ export default function FormBuilder({
                         }
                       }}
                       onDuplicate={() => {
-                        const copy = { ...pub, id: Date.now().toString() };
+                        const copy = { ...pub, id: crypto.randomUUID() };
                         const newList = [...(data.publications || [])];
                         newList.splice(idx + 1, 0, copy);
                         updateField('publications', newList);
@@ -1044,117 +1075,161 @@ export default function FormBuilder({
         )}
 
         {activeTab === 'custom' && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-[#111827]">Custom Section</h2>
+              <div>
+                <h2 className="text-xl font-bold text-[#111827]">Custom Sections</h2>
+                <p className="text-xs text-[#6B7280]">Add coursework, volunteer work, awards, leadership, or custom headings.</p>
+              </div>
               <button 
                 onClick={() => {
-                  const newId = Date.now().toString();
                   const currentCustoms = data.customSections || [];
-                  const updatedCustoms = [...currentCustoms];
-                  if (updatedCustoms.length === 0) {
-                    updatedCustoms.push({ id: 'custom-1', name: 'Custom Section', items: [] });
-                  }
-                  updatedCustoms[0].items = [{ id: newId, title: '', subtitle: '', date: '', description: '' }, ...updatedCustoms[0].items];
-                  updateField('customSections', updatedCustoms);
-                  setExpandedId(newId);
+                  const newSection = {
+                    id: crypto.randomUUID(),
+                    name: 'New Custom Section',
+                    items: [{ id: crypto.randomUUID(), title: '', subtitle: '', date: '', description: '' }]
+                  };
+                  updateField('customSections', [...currentCustoms, newSection]);
                 }}
                 className="text-xs font-bold text-white bg-[#111827] hover:bg-[#374151] px-3 py-1.5 rounded-md flex items-center gap-1 transition-colors"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Item
+                <Plus className="w-3.5 h-3.5" /> Add New Custom Section
               </button>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#374151]">Section Title</label>
-              <input 
-                value={(data.customSections && data.customSections[0]?.name) || 'Custom Section'} 
-                onChange={(e) => {
-                  const currentCustoms = data.customSections || [];
-                  const updatedCustoms = [...currentCustoms];
-                  if (updatedCustoms.length === 0) {
-                    updatedCustoms.push({ id: 'custom-1', name: 'Custom Section', items: [] });
-                  }
-                  updatedCustoms[0].name = e.target.value;
-                  updateField('customSections', updatedCustoms);
-                }} 
-                placeholder="e.g. Volunteer Experience or Interests" 
-                className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] font-bold" 
-              />
-            </div>
-            
-            {(!data.customSections || data.customSections[0]?.items.length === 0) ? (
-              <p className="text-sm text-[#6B7280]">No items added yet.</p>
+            {(!data.customSections || data.customSections.length === 0) ? (
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center space-y-3">
+                <p className="text-sm text-[#6B7280]">No custom sections created yet.</p>
+                <button
+                  onClick={() => {
+                    updateField('customSections', [{
+                      id: crypto.randomUUID(),
+                      name: 'Custom Section',
+                      items: [{ id: crypto.randomUUID(), title: '', subtitle: '', date: '', description: '' }]
+                    }]);
+                  }}
+                  className="px-3 py-1.5 text-xs font-semibold bg-white border border-gray-300 hover:bg-gray-100 rounded-md shadow-sm"
+                >
+                  Create First Custom Section
+                </button>
+              </div>
             ) : (
-              <SortableList items={(data.customSections[0]?.items || []).map(e => e.id!)} onReorder={(newOrder) => {
-                const updatedCustoms = [...(data.customSections || [])];
-                const items = updatedCustoms[0].items;
-                const newItems = newOrder.map(id => items.find(e => e.id === id)!);
-                updatedCustoms[0].items = newItems;
-                updateField('customSections', updatedCustoms);
-              }}>
-                {(data.customSections[0]?.items || []).map((item, idx) => (
-                  <SortableItem key={item.id} id={item.id!} dragHandle>
-                    <AccordionEntry
-                      title={item.title || 'New Item'}
-                      subtitle={item.subtitle || ''}
-                      isExpanded={expandedId === item.id}
-                      onToggle={() => setExpandedId(expandedId === item.id ? null : item.id!)}
-                      onDelete={() => {
-                        if (confirm('Delete this item?')) {
-                          const updatedCustoms = [...(data.customSections || [])];
-                          updatedCustoms[0].items = updatedCustoms[0].items.filter(e => e.id !== item.id);
-                          updateField('customSections', updatedCustoms);
-                        }
-                      }}
-                      onDuplicate={() => {
-                        const copy = { ...item, id: Date.now().toString() };
-                        const updatedCustoms = [...(data.customSections || [])];
-                        updatedCustoms[0].items.splice(idx + 1, 0, copy);
-                        updateField('customSections', updatedCustoms);
-                        setExpandedId(copy.id);
-                      }}
-                    >
-                      <div className="p-4 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-xs font-bold text-[#374151]">Item Title</label>
-                            <input value={item.title} onChange={(e) => {
-                              const updatedCustoms = [...(data.customSections || [])];
-                              updatedCustoms[0].items[idx].title = e.target.value;
-                              updateField('customSections', updatedCustoms);
-                            }} placeholder="Title" className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[#374151]">Subtitle / Role</label>
-                            <input value={item.subtitle || ''} onChange={(e) => {
-                              const updatedCustoms = [...(data.customSections || [])];
-                              updatedCustoms[0].items[idx].subtitle = e.target.value;
-                              updateField('customSections', updatedCustoms);
-                            }} placeholder="Role or Details" className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-[#374151]">Date</label>
-                            <input value={item.date || ''} onChange={(e) => {
-                              const updatedCustoms = [...(data.customSections || [])];
-                              updatedCustoms[0].items[idx].date = e.target.value;
-                              updateField('customSections', updatedCustoms);
-                            }} placeholder="Jan 2023" className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
-                          </div>
-                          <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-xs font-bold text-[#374151]">Description</label>
-                            <textarea value={item.description || ''} onChange={(e) => {
-                              const updatedCustoms = [...(data.customSections || [])];
-                              updatedCustoms[0].items[idx].description = e.target.value;
-                              updateField('customSections', updatedCustoms);
-                            }} placeholder="Details about this item..." className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg h-20 resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionEntry>
-                  </SortableItem>
-                ))}
-              </SortableList>
+              data.customSections.map((sec, secIdx) => (
+                <div key={sec.id || secIdx} className="bg-white border border-gray-200 rounded-xl p-4 space-y-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                    <div className="flex-1 space-y-1">
+                      <label className="text-xs font-bold text-[#374151]">Section Title</label>
+                      <input 
+                        value={sec.name} 
+                        onChange={(e) => {
+                          const updated = [...data.customSections!];
+                          updated[secIdx].name = e.target.value;
+                          updateField('customSections', updated);
+                        }} 
+                        placeholder="e.g. Volunteer Experience, Coursework, Awards" 
+                        className="w-full px-3 py-1.5 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] font-bold" 
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 pt-5">
+                      <button 
+                        onClick={() => {
+                          const newItem = { id: crypto.randomUUID(), title: '', subtitle: '', date: '', description: '' };
+                          const updated = [...data.customSections!];
+                          updated[secIdx].items = [newItem, ...(updated[secIdx].items || [])];
+                          updateField('customSections', updated);
+                          setExpandedId(newItem.id);
+                        }}
+                        className="text-xs font-semibold text-[#2563EB] bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Item
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (confirm(`Delete section "${sec.name}"?`)) {
+                            const updated = data.customSections!.filter((_, idx) => idx !== secIdx);
+                            updateField('customSections', updated);
+                          }
+                        }}
+                        className="text-xs font-semibold text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors"
+                        title="Delete Section"
+                      >
+                        <Trash2 aria-label="Delete" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {(!sec.items || sec.items.length === 0) ? (
+                    <p className="text-xs text-[#6B7280] italic">No items in this section.</p>
+                  ) : (
+                    <SortableList items={sec.items.map(e => e.id!)} onReorder={(newOrder) => {
+                      const updated = [...data.customSections!];
+                      const newItems = newOrder.map(id => sec.items.find(e => e.id === id)!);
+                      updated[secIdx].items = newItems;
+                      updateField('customSections', updated);
+                    }}>
+                      {sec.items.map((item, itemIdx) => (
+                        <SortableItem key={item.id} id={item.id!} dragHandle>
+                          <AccordionEntry
+                            title={item.title || 'New Item'}
+                            subtitle={item.subtitle || ''}
+                            isExpanded={expandedId === item.id}
+                            onToggle={() => setExpandedId(expandedId === item.id ? null : item.id!)}
+                            onDelete={() => {
+                              const updated = [...data.customSections!];
+                              updated[secIdx].items = updated[secIdx].items.filter(e => e.id !== item.id);
+                              updateField('customSections', updated);
+                            }}
+                            onDuplicate={() => {
+                              const copy = { ...item, id: crypto.randomUUID() };
+                              const updated = [...data.customSections!];
+                              updated[secIdx].items.splice(itemIdx + 1, 0, copy);
+                              updateField('customSections', updated);
+                              setExpandedId(copy.id);
+                            }}
+                          >
+                            <div className="p-4 space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1.5 md:col-span-2">
+                                  <label className="text-xs font-bold text-[#374151]">Item Title</label>
+                                  <input value={item.title} onChange={(e) => {
+                                    const updated = [...data.customSections!];
+                                    updated[secIdx].items[itemIdx].title = e.target.value;
+                                    updateField('customSections', updated);
+                                  }} placeholder="Title" className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-bold text-[#374151]">Subtitle / Subheading</label>
+                                  <input value={item.subtitle || ''} onChange={(e) => {
+                                    const updated = [...data.customSections!];
+                                    updated[secIdx].items[itemIdx].subtitle = e.target.value;
+                                    updateField('customSections', updated);
+                                  }} placeholder="Role, Organization, or Details" className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-bold text-[#374151]">Date</label>
+                                  <input value={item.date || ''} onChange={(e) => {
+                                    const updated = [...data.customSections!];
+                                    updated[secIdx].items[itemIdx].date = e.target.value;
+                                    updateField('customSections', updated);
+                                  }} placeholder="Jan 2023 - Present" className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
+                                </div>
+                                <div className="space-y-1.5 md:col-span-2">
+                                  <label className="text-xs font-bold text-[#374151]">Description</label>
+                                  <textarea value={item.description || ''} onChange={(e) => {
+                                    const updated = [...data.customSections!];
+                                    updated[secIdx].items[itemIdx].description = e.target.value;
+                                    updateField('customSections', updated);
+                                  }} placeholder="Details about this item..." className="w-full px-3 py-2 text-sm bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg h-20 resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]" />
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionEntry>
+                        </SortableItem>
+                      ))}
+                    </SortableList>
+                  )}
+                </div>
+              ))
             )}
           </div>
         )}
@@ -1185,12 +1260,12 @@ function SectionNavItem({ icon, title, status, onClick, dragMode = false }: { ic
           </div>
         ) : (
           <div className="w-8 h-8 rounded-lg bg-[#F9FAFB] flex items-center justify-center text-[#4B5563]">
-            {React.cloneElement(icon as React.ReactElement, { className: 'w-4 h-4' })}
+            {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-4 h-4' })}
           </div>
         )}
         {dragMode && (
           <div className="w-8 h-8 rounded-lg bg-[#F9FAFB] flex items-center justify-center text-[#4B5563]">
-            {React.cloneElement(icon as React.ReactElement, { className: 'w-4 h-4' })}
+            {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-4 h-4' })}
           </div>
         )}
         <div className="flex flex-col text-left">
@@ -1229,7 +1304,7 @@ function AccordionEntry({ title, subtitle, isExpanded, onToggle, onDelete, onDup
             className="p-1.5 text-[#6B7280] hover:bg-rose-50 hover:text-rose-600 rounded-md transition-colors"
             title="Delete"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 aria-label="Delete" className="w-3.5 h-3.5" />
           </button>
           <div className="w-px h-4 bg-[#E5E7EB] mx-1" />
           <ChevronRight className={`w-4 h-4 text-[#9CA3AF] transition-transform ${isExpanded ? 'rotate-90' : ''}`} />

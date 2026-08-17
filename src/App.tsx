@@ -3,9 +3,11 @@ import { PortfolioData, INITIAL_PORTFOLIO_DATA, BLANK_RESUME_DATA, TemplateId } 
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import ScreenHome from './components/screens/ScreenHome';
+import ResumeWizard from './components/wizard/ResumeWizard';
 import ScreenBuilder from './components/screens/ScreenBuilder';
 import ScreenPreview from './components/screens/ScreenPreview';
 import ScreenExportConfirmation from './components/screens/ScreenExportConfirmation';
+import ConfirmModal from './components/common/ConfirmModal';
 import { TabType } from './components/FormBuilder';
 
 const LOCAL_STORAGE_DATA_KEY = 'buildeasy_data_v2';
@@ -15,7 +17,7 @@ const LOCAL_STORAGE_TAB_KEY = 'buildeasy_tab_v2';
 // Legacy keys fallback
 const LEGACY_DATA_KEY = 'careerarchitect_data_v2';
 
-type ScreenId = 'home' | 'builder' | 'preview' | 'confirmation';
+type ScreenId = 'home' | 'wizard' | 'builder' | 'preview' | 'confirmation';
 
 export default function App() {
   // Main resume data state
@@ -47,6 +49,9 @@ export default function App() {
     const saved = localStorage.getItem(LOCAL_STORAGE_TAB_KEY);
     return (saved as TabType) || 'overview';
   });
+
+  // Modal States
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   // Autosave resume data to localStorage with quota handling
   useEffect(() => {
@@ -87,18 +92,28 @@ export default function App() {
     }));
   };
 
-  const handleStartBuilder = (templateId?: TemplateId) => {
-    if (templateId) {
-      setData((prev) => ({
-        ...prev,
-        templateId,
-      }));
+  const [wizardTemplateId, setWizardTemplateId] = useState<TemplateId | undefined>();
+
+  const hasResumeData = data.experience.length > 0 || data.education.length > 0 || !!data.basicInfo.name;
+
+  const handleStartFromHome = (templateId?: TemplateId) => {
+    if (hasResumeData) {
+      if (templateId) {
+        setData(prev => ({ ...prev, templateId }));
+      }
+      setActiveBuilderTab('overview');
+      setCurrentScreen('builder');
+    } else {
+      setWizardTemplateId(templateId);
+      setCurrentScreen('wizard');
     }
-    setActiveBuilderTab('overview');
-    setCurrentScreen('builder');
   };
 
-  const handleStartOver = () => {
+  const handleStartOverRequest = () => {
+    setIsResetConfirmOpen(true);
+  };
+
+  const handleConfirmStartOver = () => {
     setData({
       ...BLANK_RESUME_DATA,
       templateId: data.templateId || 'minimal',
@@ -114,8 +129,9 @@ export default function App() {
         currentScreen={currentScreen}
         activeBuilderTab={activeBuilderTab}
         onNavigateHome={() => setCurrentScreen('home')}
-        onStartBuilder={() => handleStartBuilder()}
-        onReset={handleStartOver}
+        onStartBuilder={() => handleStartFromHome()}
+        onReset={handleStartOverRequest}
+        hasResumeData={hasResumeData}
       />}
 
       {/* 2. Main Screen Routing */}
@@ -123,7 +139,24 @@ export default function App() {
         {/* Screen 1: Editorial Landing Page */}
         {currentScreen === 'home' && (
           <div className="flex-1 overflow-y-auto">
-            <ScreenHome onStartBuilder={handleStartBuilder} />
+            <ScreenHome 
+              onStartBuilder={(templateId) => handleStartFromHome(templateId)}
+              hasResumeData={hasResumeData}
+            />
+          </div>
+        )}
+
+        {/* New Screen: Guided Resume Creation Wizard */}
+        {currentScreen === 'wizard' && (
+          <div className="flex-1 overflow-y-auto bg-white">
+            <ResumeWizard 
+              initialTemplateId={wizardTemplateId}
+              onComplete={(finalData) => {
+                setData(finalData);
+                setCurrentScreen('builder');
+              }}
+              onExit={() => setCurrentScreen('home')}
+            />
           </div>
         )}
 
@@ -158,13 +191,26 @@ export default function App() {
           <ScreenExportConfirmation
             data={data}
             onEditAgain={() => setCurrentScreen('builder')}
-            onStartOver={handleStartOver}
+            onStartOver={handleStartOverRequest}
           />
         )}
       </main>
 
       {/* 3. Global Footer */}
       {currentScreen === 'home' && <Footer />}
+
+      {/* 4. Modals */}
+      <ConfirmModal
+        isOpen={isResetConfirmOpen}
+        onClose={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmStartOver}
+        title="Start a new resume?"
+        message="Your current resume will be cleared. This action cannot be undone."
+        confirmText="Start New Resume"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }
+

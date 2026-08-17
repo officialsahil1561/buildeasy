@@ -15,7 +15,7 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
   const [report, setReport] = useState<CheckReport | null>(null);
   const [activeTab, setActiveTab] = useState<'checks' | 'jd'>('checks');
   const [jdText, setJdText] = useState('');
-  const [jdMatch, setJdMatch] = useState<{ matched: string[]; missing: string[] } | null>(null);
+  const [jdMatch, setJdMatch] = useState<{ matched: string[]; missing: string[]; matchPercentage?: number; disclaimer?: string } | null>(null);
   const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
@@ -29,6 +29,15 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
       return () => clearTimeout(timer);
     }
   }, [isOpen, data]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const handleJdAnalyze = () => {
     if (!jdText.trim()) return;
@@ -145,19 +154,13 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
           ) : activeTab === 'jd' ? (
             <div className="space-y-4">
               {!jdMatch && (
-                <div className="flex flex-col items-center justify-center p-5 bg-[#F9FAFB] rounded-xl border border-dashed border-[#E5E7EB] mb-4">
-                  <div className="w-[100px] h-[100px] flex items-center justify-center">
-                    {/* @ts-ignore */}
-                    <dotlottie-wc
-                      src="https://lottie.host/90b8f637-0021-46aa-882c-661c6299ea46/reLdmA02iY.lottie"
-                      style={{ width: '100px', height: '100px' }}
-                      autoplay
-                      loop
-                    ></dotlottie-wc>
+                <div className="flex flex-col items-center justify-center p-5 bg-[#F9FAFB] rounded-xl border border-dashed border-[#E5E7EB] mb-4 text-center">
+                  <div className="w-10 h-10 rounded-full bg-[#111827] text-white flex items-center justify-center mb-2">
+                    <Briefcase className="w-5 h-5" />
                   </div>
-                  <p className="text-xs font-bold text-[#111827] mt-1">Local Keyword Matcher</p>
-                  <p className="text-[10px] text-center text-[#6B7280] max-w-[220px] mt-1 leading-relaxed">
-                    Paste a target job description below to check your resume match rate and scan for missing keywords.
+                  <p className="text-xs font-bold text-[#111827]">Job Keyword Matcher</p>
+                  <p className="text-[11px] text-[#6B7280] max-w-[240px] mt-1 leading-relaxed">
+                    Paste a target job description to analyze keyword coverage and match percentage.
                   </p>
                 </div>
               )}
@@ -169,24 +172,37 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
                 <textarea
                   value={jdText}
                   onChange={(e) => setJdText(e.target.value)}
-                  placeholder="Paste the job description here..."
-                  className="w-full h-32 px-3 py-2 text-xs rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#0F172A] resize-none"
+                  placeholder="Paste the job posting description here..."
+                  className="w-full h-32 px-3 py-2 text-xs rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#111827] resize-none"
                 />
                 <button
                   onClick={handleJdAnalyze}
                   disabled={!jdText.trim()}
-                  className="w-full py-2 bg-[#0F172A] text-white text-xs font-semibold rounded-lg hover:bg-[#1E293B] disabled:opacity-50 transition-colors"
+                  className="w-full py-2 bg-[#111827] text-white text-xs font-semibold rounded-lg hover:bg-[#374151] disabled:opacity-50 transition-colors cursor-pointer"
                 >
-                  Analyze Match
+                  Analyze Keyword Match
                 </button>
-                <p className="text-[10px] text-[#6B7280] text-center">We analyze keywords locally. Your data is not sent to external servers.</p>
+                <p className="text-[10px] text-[#6B7280] text-center">Keywords are analyzed locally in your browser.</p>
               </div>
 
               {jdMatch && (
-                <div className="space-y-4 pt-4 border-t border-[#E5E7EB]">
+                <div className="space-y-4 pt-4 border-t border-[#E5E7EB] animate-in fade-in duration-200">
+                  {/* Score badge */}
+                  <div className="p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Keyword Coverage</span>
+                      <h4 className="text-lg font-bold text-[#111827]">{jdMatch.matchPercentage}% Match</h4>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      (jdMatch.matchPercentage || 0) >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {jdMatch.matched.length} / {jdMatch.matched.length + jdMatch.missing.length} keywords
+                    </div>
+                  </div>
+
                   <div>
                     <h4 className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> MATCHED KEYWORDS
+                      <CheckCircle2 className="w-3.5 h-3.5" /> MATCHED KEYWORDS ({jdMatch.matched.length})
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
                       {jdMatch.matched.length > 0 ? jdMatch.matched.map((kw, i) => (
@@ -199,7 +215,7 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
 
                   <div>
                     <h4 className="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5" /> MISSING KEYWORDS
+                      <AlertTriangle className="w-3.5 h-3.5" /> MISSING KEYWORDS ({jdMatch.missing.length})
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
                       {jdMatch.missing.length > 0 ? jdMatch.missing.map((kw, i) => (
@@ -208,9 +224,10 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
                         </span>
                       )) : <p className="text-xs text-[#6B7280]">All key terms matched!</p>}
                     </div>
-                    <p className="text-[10px] text-[#6B7280] mt-2 leading-relaxed">
-                      These terms appear in the job description but not in your resume. Consider mentioning them <strong>if you genuinely have this experience</strong>. Do not add skills you don't possess.
-                    </p>
+                  </div>
+
+                  <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-lg text-[11px] text-amber-900 leading-relaxed font-medium">
+                    ⚠️ <strong>Important Note:</strong> {jdMatch.disclaimer || 'Only add keywords that accurately reflect your experience.'}
                   </div>
                 </div>
               )}
