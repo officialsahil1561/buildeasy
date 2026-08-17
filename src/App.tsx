@@ -196,9 +196,6 @@ export default function App() {
         )}
       </main>
 
-      {/* 3. Global Footer */}
-      {currentScreen === 'home' && <Footer />}
-
       {/* 4. Modals */}
       <ConfirmModal
         isOpen={isResetConfirmOpen}

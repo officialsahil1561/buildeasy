@@ -1,24 +1,5 @@
 import React from 'react';
 
-// Declare custom web component element for TypeScript
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'dotlottie-wc': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          src?: string;
-          autoplay?: boolean;
-          loop?: boolean;
-          speed?: number;
-          mode?: string;
-          background?: string;
-        },
-        HTMLElement
-      >;
-    }
-  }
-}
-
 interface LottieAnimationProps {
   src: string;
   className?: string;
@@ -36,13 +17,13 @@ export default function LottieAnimation({
 }: LottieAnimationProps) {
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
-      <dotlottie-wc
-        src={src}
-        autoplay={autoplay}
-        loop={loop}
-        speed={speed}
-        style={{ width: '100%', height: '100%' }}
-      />
+      {React.createElement('dotlottie-wc', {
+        src,
+        autoplay: autoplay ? 'true' : undefined,
+        loop: loop ? 'true' : undefined,
+        speed: speed.toString(),
+        style: { width: '100%', height: '100%' },
+      })}
     </div>
   );
 }

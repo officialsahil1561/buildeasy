@@ -1,3 +1,5 @@
+import type React from 'react';
+
 export interface BasicInfo {
   firstName?: string;
   lastName?: string;
@@ -292,10 +294,3 @@ export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
   ],
 };
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'dotlottie-wc': any;
-    }
-  }
-}
