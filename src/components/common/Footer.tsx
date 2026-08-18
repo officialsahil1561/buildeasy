@@ -4,94 +4,104 @@ import BuildEasyLogo from './BuildEasyLogo';
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-[#E5E7EB] shrink-0 select-none">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-12 md:py-14">
-        {/* Responsive Multi-column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 pb-8 border-b border-[#F3F4F6]">
+    <footer className="bg-white border-t border-[#E5E7EB] shrink-0 select-none" id="site-footer">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-14 pb-8">
+        
+        {/* Top Footer Area */}
+        <div className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-16">
           
-          {/* Brand Column */}
-          <div className="space-y-3 sm:col-span-2 md:col-span-1">
-            <Link to="/" aria-label="BuildEasy Home">
+          {/* Left Column: Brand Statement */}
+          <div className="max-w-[300px] flex flex-col gap-3">
+            <Link to="/" aria-label="BuildEasy Home" className="inline-block">
               <BuildEasyLogo size="md" />
             </Link>
-            <p className="text-xs text-[#6B7280] leading-relaxed max-w-xs">
+            <p className="text-xs text-gray-500 leading-relaxed font-sans">
               Craft a resume that reflects your professional caliber. High-end editorial design meets intuitive building.
             </p>
           </div>
 
-          {/* Product Column */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">Product</h4>
-            <ul className="space-y-2 text-xs text-[#6B7280]">
-              <li>
-                <Link to="/builder" className="hover:text-[#111827] transition-colors">
-                  Resume Builder
-                </Link>
-              </li>
-              <li>
-                <Link to="/templates" className="hover:text-[#111827] transition-colors">
-                  Templates
-                </Link>
-              </li>
-              <li>
-                <Link to="/how-it-works" className="hover:text-[#111827] transition-colors">
-                  How It Works
-                </Link>
-              </li>
-              <li>
-                <Link to="/features" className="hover:text-[#111827] transition-colors">
-                  Features
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Right Section: Compact Links Grid (70-80% of width maximum on desktop) */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-8 sm:gap-12 md:gap-16 md:max-w-2xl">
+            
+            {/* Product Column */}
+            <div className="min-w-[120px] flex flex-col gap-3">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 font-sans">Product</h4>
+              <ul className="flex flex-col gap-2 text-xs text-gray-500">
+                <li>
+                  <Link to="/builder" className="hover:text-gray-900 transition-colors duration-150">
+                    Resume Builder
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/templates" className="hover:text-gray-900 transition-colors duration-150">
+                    Templates
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/how-it-works" className="hover:text-gray-900 transition-colors duration-150">
+                    How It Works
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/features" className="hover:text-gray-900 transition-colors duration-150">
+                    Features
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          {/* Resources Column */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">Resources</h4>
-            <ul className="space-y-2 text-xs text-[#6B7280]">
-              <li>
-                <Link to="/resume-tips" className="hover:text-[#111827] transition-colors">
-                  Resume Tips
-                </Link>
-              </li>
-              <li>
-                <Link to="/faq" className="hover:text-[#111827] transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-[#111827] transition-colors">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
+            {/* Resources Column */}
+            <div className="min-w-[120px] flex flex-col gap-3">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 font-sans">Resources</h4>
+              <ul className="flex flex-col gap-2 text-xs text-gray-500">
+                <li>
+                  <Link to="/resume-tips" className="hover:text-gray-900 transition-colors duration-150">
+                    Resume Tips
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/faq" className="hover:text-gray-900 transition-colors duration-150">
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="hover:text-gray-900 transition-colors duration-150">
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          {/* Legal Column */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">Legal</h4>
-            <ul className="space-y-2 text-xs text-[#6B7280]">
-              <li>
-                <Link to="/privacy" className="hover:text-[#111827] transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="hover:text-[#111827] transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
+            {/* Legal Column */}
+            <div className="min-w-[120px] flex flex-col gap-3">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 font-sans">Legal</h4>
+              <ul className="flex flex-col gap-2 text-xs text-gray-500">
+                <li>
+                  <Link to="/privacy" className="hover:text-gray-900 transition-colors duration-150">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="hover:text-gray-900 transition-colors duration-150">
+                    Terms of Service
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
           </div>
 
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[#9CA3AF]">
-          <span>© {new Date().getFullYear()} BuildEasy. All rights reserved.</span>
-          <span>Designed with precision.</span>
+        {/* Thin Divider Line */}
+        <div className="h-px bg-gray-100 w-full mt-10 mb-5" />
+
+        {/* Bottom Row Area */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] text-gray-400 font-sans">
+          <span>© 2026 BuildEasy. All rights reserved.</span>
+          <span className="sm:text-right">Designed with precision.</span>
         </div>
+
       </div>
     </footer>
   );
