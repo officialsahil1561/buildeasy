@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import BuildEasyLogo from './BuildEasyLogo';
 
 export default function Footer() {
@@ -10,7 +11,9 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div className="space-y-3 sm:col-span-2 md:col-span-1">
-            <BuildEasyLogo size="md" />
+            <Link to="/" aria-label="BuildEasy Home">
+              <BuildEasyLogo size="md" />
+            </Link>
             <p className="text-xs text-[#6B7280] leading-relaxed max-w-xs">
               Craft a resume that reflects your professional caliber. High-end editorial design meets intuitive building.
             </p>
@@ -21,19 +24,24 @@ export default function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">Product</h4>
             <ul className="space-y-2 text-xs text-[#6B7280]">
               <li>
-                <a href="#templates" className="hover:text-[#111827] transition-colors">
+                <Link to="/builder" className="hover:text-[#111827] transition-colors">
+                  Resume Builder
+                </Link>
+              </li>
+              <li>
+                <Link to="/templates" className="hover:text-[#111827] transition-colors">
                   Templates
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#how-it-works" className="hover:text-[#111827] transition-colors">
+                <Link to="/how-it-works" className="hover:text-[#111827] transition-colors">
                   How It Works
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#features" className="hover:text-[#111827] transition-colors">
+                <Link to="/features" className="hover:text-[#111827] transition-colors">
                   Features
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -43,19 +51,19 @@ export default function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">Resources</h4>
             <ul className="space-y-2 text-xs text-[#6B7280]">
               <li>
-                <span className="hover:text-[#111827] transition-colors cursor-pointer">
-                  Resume Guide
-                </span>
+                <Link to="/resume-tips" className="hover:text-[#111827] transition-colors">
+                  Resume Tips
+                </Link>
               </li>
               <li>
-                <span className="hover:text-[#111827] transition-colors cursor-pointer">
-                  ATS Best Practices
-                </span>
+                <Link to="/faq" className="hover:text-[#111827] transition-colors">
+                  FAQ
+                </Link>
               </li>
               <li>
-                <span className="hover:text-[#111827] transition-colors cursor-pointer">
+                <Link to="/contact" className="hover:text-[#111827] transition-colors">
                   Contact
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
@@ -65,19 +73,14 @@ export default function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">Legal</h4>
             <ul className="space-y-2 text-xs text-[#6B7280]">
               <li>
-                <span className="hover:text-[#111827] transition-colors cursor-pointer">
+                <Link to="/privacy" className="hover:text-[#111827] transition-colors">
                   Privacy Policy
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="hover:text-[#111827] transition-colors cursor-pointer">
+                <Link to="/terms" className="hover:text-[#111827] transition-colors">
                   Terms of Service
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-[#111827] transition-colors cursor-pointer">
-                  Cookie Settings
-                </span>
+                </Link>
               </li>
             </ul>
           </div>

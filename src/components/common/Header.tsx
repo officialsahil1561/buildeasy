@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { ArrowRight, Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import BuildEasyLogo from './BuildEasyLogo';
+import { useResume } from '../../context/ResumeContext';
 
 interface HeaderProps {
   currentScreen?: string;
   activeBuilderTab?: string;
-  onNavigateHome: () => void;
-  onStartBuilder: () => void;
+  onNavigateHome?: () => void;
+  onStartBuilder?: () => void;
   onReset?: () => void;
   hasResumeData?: boolean;
 }
@@ -14,21 +16,30 @@ interface HeaderProps {
 export default function Header({
   onNavigateHome,
   onStartBuilder,
-  hasResumeData,
+  hasResumeData: hasResumeDataProp,
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const resumeContext = useResume();
 
-  const handleMobileNavClick = (href: string) => {
-    setMobileMenuOpen(false);
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const hasResumeData = hasResumeDataProp !== undefined ? hasResumeDataProp : resumeContext.hasResumeData;
+
+  const handleLogoClick = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      navigate('/');
     }
   };
 
-  const handleMobileCtaClick = () => {
-    setMobileMenuOpen(false);
-    onStartBuilder();
+  const handleBuilderClick = () => {
+    if (onStartBuilder) {
+      onStartBuilder();
+    } else if (hasResumeData) {
+      navigate('/builder');
+    } else {
+      navigate('/builder/start');
+    }
   };
 
   return (
@@ -47,7 +58,7 @@ export default function Header({
           <div className="flex items-center justify-self-start">
             <button
               id="header-logo-btn"
-              onClick={onNavigateHome}
+              onClick={handleLogoClick}
               className="flex items-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#111111] focus:ring-offset-2 rounded py-1 px-1 -ml-1 text-left transition-opacity hover:opacity-90"
               aria-label="BuildEasy Home"
             >
@@ -55,27 +66,39 @@ export default function Header({
             </button>
           </div>
 
-          {/* CENTER: Main Home Navigation */}
+          {/* CENTER: Main Navigation */}
           <div className="hidden md:flex items-center justify-self-center">
-            <nav className="flex items-center gap-8 lg:gap-10" aria-label="Main Navigation">
-              <a
-                href="#templates"
+            <nav className="flex items-center gap-6 lg:gap-8" aria-label="Main Navigation">
+              <Link
+                to="/builder"
+                className="text-[13.5px] lg:text-[14px] font-medium text-[#555B65] hover:text-[#111111] transition-colors duration-150"
+              >
+                Resume Builder
+              </Link>
+              <Link
+                to="/templates"
                 className="text-[13.5px] lg:text-[14px] font-medium text-[#555B65] hover:text-[#111111] transition-colors duration-150"
               >
                 Templates
-              </a>
-              <a
-                href="#how-it-works"
+              </Link>
+              <Link
+                to="/how-it-works"
                 className="text-[13.5px] lg:text-[14px] font-medium text-[#555B65] hover:text-[#111111] transition-colors duration-150"
               >
                 How It Works
-              </a>
-              <a
-                href="#features"
+              </Link>
+              <Link
+                to="/features"
                 className="text-[13.5px] lg:text-[14px] font-medium text-[#555B65] hover:text-[#111111] transition-colors duration-150"
               >
                 Features
-              </a>
+              </Link>
+              <Link
+                to="/resume-tips"
+                className="text-[13.5px] lg:text-[14px] font-medium text-[#555B65] hover:text-[#111111] transition-colors duration-150"
+              >
+                Resume Tips
+              </Link>
             </nav>
           </div>
 
@@ -84,10 +107,10 @@ export default function Header({
             <div className="hidden md:flex items-center gap-3">
               <button
                 id="header-create-resume-btn"
-                onClick={onStartBuilder}
+                onClick={handleBuilderClick}
                 className="h-[40px] px-5 rounded-[7px] bg-[#111111] text-white text-[13.5px] lg:text-[14px] font-semibold hover:bg-[#242424] hover:-translate-y-px transition-all duration-150 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#111111] focus:ring-offset-2"
               >
-                <span>{hasResumeData ? 'Resume Builder' : 'Create My Resume'}</span>
+                <span>{hasResumeData ? 'Go to Builder' : 'Create My Resume'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -121,33 +144,53 @@ export default function Header({
           className="md:hidden bg-white border-b border-[#E5E7EB] px-5 py-5 flex flex-col gap-4 shadow-sm animate-in fade-in slide-in-from-top-1 duration-150"
         >
           <div className="flex flex-col space-y-3">
-            <button
-              onClick={() => handleMobileNavClick('#templates')}
+            <Link
+              to="/builder"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-left py-1.5 text-[16px] font-medium text-[#111827] hover:text-[#555B65] transition-colors"
+            >
+              Resume Builder
+            </Link>
+            <Link
+              to="/templates"
+              onClick={() => setMobileMenuOpen(false)}
               className="text-left py-1.5 text-[16px] font-medium text-[#111827] hover:text-[#555B65] transition-colors"
             >
               Templates
-            </button>
-            <button
-              onClick={() => handleMobileNavClick('#how-it-works')}
+            </Link>
+            <Link
+              to="/how-it-works"
+              onClick={() => setMobileMenuOpen(false)}
               className="text-left py-1.5 text-[16px] font-medium text-[#111827] hover:text-[#555B65] transition-colors"
             >
               How It Works
-            </button>
-            <button
-              onClick={() => handleMobileNavClick('#features')}
+            </Link>
+            <Link
+              to="/features"
+              onClick={() => setMobileMenuOpen(false)}
               className="text-left py-1.5 text-[16px] font-medium text-[#111827] hover:text-[#555B65] transition-colors"
             >
               Features
-            </button>
+            </Link>
+            <Link
+              to="/resume-tips"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-left py-1.5 text-[16px] font-medium text-[#111827] hover:text-[#555B65] transition-colors"
+            >
+              Resume Tips
+            </Link>
           </div>
 
           <div className="pt-2 border-t border-[#F3F4F6]">
             <button
               id="mobile-drawer-create-resume-btn"
-              onClick={handleMobileCtaClick}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                handleBuilderClick();
+              }}
               className="w-full h-[44px] rounded-[7px] bg-[#111111] text-white text-[14px] font-semibold hover:bg-[#242424] transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>{hasResumeData ? 'Resume Builder' : 'Create My Resume'}</span>
+              <span>{hasResumeData ? 'Go to Builder' : 'Create My Resume'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

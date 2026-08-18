@@ -3,15 +3,14 @@ import { PortfolioData, TemplateId } from '../../types';
 import Footer from '../common/Footer';
 import LivePreviewPane from '../common/LivePreviewPane';
 import ChangeTemplateModal from '../ChangeTemplateModal';
+import { useNavigate } from 'react-router-dom';
 import { 
   Download, 
   ArrowLeft, 
   LayoutTemplate, 
-  CheckCircle2, 
   FileCode
 } from 'lucide-react';
 import { triggerAuthoritativePdfExport, downloadBackupJson } from '../../lib/exporter';
-import { analyzeResume } from '../../lib/resume-analysis';
 
 interface ScreenPreviewProps {
   data: PortfolioData;
@@ -22,13 +21,13 @@ interface ScreenPreviewProps {
 export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: ScreenPreviewProps) {
   const [isExporting, setIsExporting] = React.useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
-
-  const analysis = React.useMemo(() => analyzeResume(data), [data]);
+  const navigate = useNavigate();
 
   const handleExportPdf = async () => {
     setIsExporting(true);
     try {
       await triggerAuthoritativePdfExport(data);
+      navigate('/builder/export');
     } catch (err) {
       console.error('Export failed:', err);
     } finally {
@@ -54,9 +53,6 @@ export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: 
 
           <div className="hidden sm:flex items-center gap-2">
             <span className="text-sm font-bold text-gray-900">{data.resumeName || 'My Resume'}</span>
-            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Score: {analysis.score}%
-            </span>
           </div>
         </div>
 

@@ -51,7 +51,7 @@ export default function ScreenExportConfirmation({
             Your Resume is Ready!
           </h1>
           <p className="text-xs text-[#6B7280] leading-relaxed max-w-xs mx-auto">
-            Your document has been formatted for standard {pageSizeLabel} high-resolution print, vector typography, and ATS submission.
+            Your document has been formatted for standard {pageSizeLabel} high-resolution print, vector typography, and professional submission.
           </p>
         </div>
 

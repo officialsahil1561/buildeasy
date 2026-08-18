@@ -42,6 +42,27 @@ function sanitizePortfolioData(data: PortfolioData): PortfolioData {
   };
 }
 
+export function renderSectionsByOrder(data: PortfolioData, sectionRenderers: Record<string, () => React.ReactNode>) {
+  const defaultOrder = ['summary', 'experience', 'education', 'projects', 'skills', 'certifications'];
+  const customOrder = data.customization?.sectionOrder;
+  
+  let order = defaultOrder;
+  if (customOrder && customOrder.length > 0) {
+    order = customOrder.map(s => (s === 'basic' ? 'summary' : s));
+  }
+
+  const allKeys = Object.keys(sectionRenderers);
+  const fullOrder = [...order.filter(k => allKeys.includes(k)), ...allKeys.filter(k => !order.includes(k))];
+
+  return fullOrder.map(sectionId => {
+    const renderer = sectionRenderers[sectionId];
+    if (!renderer) return null;
+    const res = renderer();
+    if (!res) return null;
+    return <React.Fragment key={sectionId}>{res}</React.Fragment>;
+  });
+}
+
 export default function TemplateRenderer({ data }: TemplateRendererProps) {
   const sanitizedData = sanitizePortfolioData(data);
 

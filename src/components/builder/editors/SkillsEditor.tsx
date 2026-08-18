@@ -85,7 +85,7 @@ export default function SkillsEditor({ data, onChange }: SkillsEditorProps) {
         <label className="text-xs font-bold text-[#374151] flex justify-between">
           <span>Active Resume Skills ({skills.length})</span>
           {skills.length < 5 && (
-            <span className="text-[11px] text-amber-600 font-medium">Add at least 5 skills for optimal ATS match</span>
+            <span className="text-[11px] text-amber-600 font-medium">Add at least 5 skills for optimal impact</span>
           )}
         </label>
 

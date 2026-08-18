@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { TemplateId, TemplateCategory } from '../../types';
+import { TemplateId, TemplateCategory, INITIAL_PORTFOLIO_DATA, PortfolioData } from '../../types';
 import SelectableCard from '../common/SelectableCard';
 import PillButton from '../common/PillButton';
+import TemplatePreview from '../common/TemplatePreview';
 import { ArrowRight, ArrowLeft, Sparkles, Filter } from 'lucide-react';
 
 interface ScreenTemplateSelectProps {
@@ -18,7 +19,6 @@ interface TemplateItem {
   categoryLabel: string;
   badge?: string;
   description: string;
-  previewElements: React.ReactNode;
 }
 
 export default function ScreenTemplateSelect({
@@ -43,22 +43,8 @@ export default function ScreenTemplateSelect({
       title: 'Minimal',
       category: 'professional',
       categoryLabel: 'Professional',
-      badge: 'ATS FAVORITE',
+      badge: 'POPULAR',
       description: 'Clean, text-first layout with high readability',
-      previewElements: (
-        <div className="w-full h-full bg-white p-3 flex flex-col text-[6px] text-slate-800 font-sans select-none pointer-events-none">
-          <div className="border-b border-slate-200 pb-1 mb-1">
-            <div className="w-20 h-1.5 bg-[#0F172A] rounded mb-0.5" />
-            <div className="w-12 h-1 bg-slate-400 rounded" />
-          </div>
-          <div className="space-y-1.5 flex-1">
-            <div className="w-10 h-1 bg-[#0F172A] rounded" />
-            <div className="w-full h-0.5 bg-slate-400 rounded" />
-            <div className="w-full h-0.5 bg-slate-300 rounded" />
-            <div className="w-5/6 h-0.5 bg-slate-300 rounded" />
-          </div>
-        </div>
-      ),
     },
     {
       id: 'executive',
@@ -67,21 +53,6 @@ export default function ScreenTemplateSelect({
       categoryLabel: 'Professional',
       badge: 'LEADERSHIP',
       description: 'Corporate typography and clear experience hierarchy',
-      previewElements: (
-        <div className="w-full h-full bg-white p-3 flex flex-col text-[6px] text-slate-800 font-sans select-none pointer-events-none">
-          <div className="text-center border-b-2 border-slate-900 pb-1 mb-1">
-            <div className="w-24 h-2 bg-[#0F172A] mx-auto rounded mb-0.5 uppercase" />
-            <div className="w-16 h-1 bg-slate-400 mx-auto rounded" />
-          </div>
-          <div className="space-y-1 flex-1">
-            <div className="w-12 h-1 bg-[#0F172A] uppercase rounded" />
-            <div className="w-full h-0.5 bg-slate-400 rounded" />
-            <div className="w-4/5 h-0.5 bg-slate-300 rounded" />
-            <div className="w-10 h-1 bg-[#0F172A] uppercase rounded pt-1" />
-            <div className="w-full h-0.5 bg-slate-400 rounded" />
-          </div>
-        </div>
-      ),
     },
     {
       id: 'modern',
@@ -90,19 +61,6 @@ export default function ScreenTemplateSelect({
       categoryLabel: 'Modern',
       badge: 'CONTEMPORARY',
       description: 'Subtle accents and modern typography',
-      previewElements: (
-        <div className="w-full h-full bg-white flex flex-col text-[6px] text-slate-800 font-sans select-none pointer-events-none">
-          <div className="bg-[#0F172A] p-2 text-white flex justify-between items-end">
-             <div className="w-20 h-1.5 bg-white rounded mb-0.5" />
-             <div className="w-10 h-1 bg-slate-400 rounded" />
-          </div>
-          <div className="p-2 space-y-1 flex-1">
-            <div className="w-10 h-1 bg-[#0F172A] uppercase rounded" />
-            <div className="w-full h-0.5 bg-slate-400 rounded" />
-            <div className="w-full h-0.5 bg-slate-300 rounded" />
-          </div>
-        </div>
-      ),
     },
     {
       id: 'academic',
@@ -111,22 +69,6 @@ export default function ScreenTemplateSelect({
       categoryLabel: 'Academic',
       badge: 'EDUCATION 1ST',
       description: 'Education-forward CV ordering, dense research layout',
-      previewElements: (
-        <div className="w-full h-full bg-white p-3 flex flex-col justify-between text-[6px] text-slate-800 font-sans select-none pointer-events-none">
-          <div className="text-center border-b-2 border-slate-900 pb-1 mb-1">
-            <div className="w-24 h-1.5 bg-[#0F172A] mx-auto rounded mb-0.5 uppercase" />
-            <div className="w-28 h-0.5 bg-slate-400 mx-auto rounded" />
-          </div>
-          <div className="space-y-1 flex-1">
-            <div className="w-10 h-1 bg-[#0F172A] uppercase rounded" />
-            <div className="w-full h-0.5 bg-slate-400 rounded" />
-            <div className="w-4/5 h-0.5 bg-slate-300 rounded" />
-            <div className="w-12 h-1 bg-[#0F172A] uppercase rounded pt-1" />
-            <div className="w-full h-0.5 bg-slate-400 rounded" />
-            <div className="w-5/6 h-0.5 bg-slate-300 rounded" />
-          </div>
-        </div>
-      ),
     },
     {
       id: 'classic',
@@ -135,21 +77,6 @@ export default function ScreenTemplateSelect({
       categoryLabel: 'Professional',
       badge: 'TRADITIONAL',
       description: 'Traditional resume with strong horizontal rules',
-      previewElements: (
-        <div className="w-full h-full bg-white p-3 flex flex-col justify-between text-[6px] text-slate-800 font-sans select-none pointer-events-none">
-          <div className="text-center mb-1">
-            <div className="w-20 h-1.5 bg-black mx-auto rounded mb-0.5 uppercase font-bold" />
-            <div className="w-28 h-0.5 bg-slate-600 mx-auto rounded" />
-          </div>
-          <div className="space-y-1.5 flex-1">
-            <div className="w-12 h-1 bg-black font-bold uppercase rounded" />
-            <div className="w-full h-0.5 bg-slate-600 rounded" />
-            <div className="w-5/6 h-0.5 bg-slate-500 rounded" />
-            <div className="w-10 h-1 bg-black font-bold uppercase rounded pt-1" />
-            <div className="w-full h-0.5 bg-slate-600 rounded" />
-          </div>
-        </div>
-      ),
     },
     {
       id: 'compact',
@@ -158,27 +85,6 @@ export default function ScreenTemplateSelect({
       categoryLabel: 'Compact',
       badge: 'DENSE 1-PAGE',
       description: 'Tight spacing, reduced gaps, maximum content per page',
-      previewElements: (
-        <div className="w-full h-full bg-white p-2.5 flex flex-col justify-between text-[6px] text-slate-800 font-sans select-none pointer-events-none">
-          <div className="border-b border-slate-300 pb-0.5 mb-1 flex justify-between items-center">
-            <div className="w-14 h-1.5 bg-[#0F172A] rounded" />
-            <div className="w-10 h-0.5 bg-slate-400 rounded" />
-          </div>
-          <div className="grid grid-cols-12 gap-1 flex-1">
-            <div className="col-span-8 space-y-1">
-              <div className="w-8 h-0.5 bg-[#0F172A] rounded" />
-              <div className="w-full h-0.5 bg-slate-400 rounded" />
-              <div className="w-full h-0.5 bg-slate-300 rounded" />
-              <div className="w-4/5 h-0.5 bg-slate-300 rounded" />
-            </div>
-            <div className="col-span-4 border-l border-slate-200 pl-1 space-y-1">
-              <div className="w-6 h-0.5 bg-[#0F172A] rounded" />
-              <div className="w-full h-0.5 bg-slate-300 rounded" />
-              <div className="w-full h-0.5 bg-slate-300 rounded" />
-            </div>
-          </div>
-        </div>
-      ),
     }
   ];
 
@@ -193,7 +99,7 @@ export default function ScreenTemplateSelect({
         
         {/* Title and Intro */}
         <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#475569] uppercase tracking-wider bg-white px-2.5 py-1 rounded-full border border-[#E5E7EB] shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#475569] uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-[#0F172A]" />
             <span>Step 1: Choose Your Architecture</span>
           </div>
@@ -201,7 +107,7 @@ export default function ScreenTemplateSelect({
             Select a Resume Template
           </h1>
           <p className="text-sm text-[#6B7280] max-w-2xl leading-relaxed">
-            All 12 templates are 100% deterministic, ATS-compatible, and consume the exact same structured data. You can switch layouts at any time without losing your content.
+            All 6 templates are 100% deterministic, professionally designed, and consume the exact same structured data. You can switch layouts at any time without losing your content.
           </p>
         </div>
 
@@ -239,20 +145,35 @@ export default function ScreenTemplateSelect({
           })}
         </div>
 
-        {/* Responsive Grid: 1 col (mobile), 2 cols (tablet), 3-4 cols (desktop) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
-          {filteredTemplates.map((tpl) => (
-            <SelectableCard
-              key={tpl.id}
-              id={`template-card-${tpl.id}`}
-              selected={selectedTemplate === tpl.id}
-              onClick={() => onSelectTemplate(tpl.id)}
-              title={tpl.title}
-              badge={tpl.badge}
-              description={tpl.description}
-              thumbnail={tpl.previewElements}
-            />
-          ))}
+        {/* Responsive Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-5">
+          {filteredTemplates.map((tpl) => {
+            const previewData: PortfolioData = {
+              ...INITIAL_PORTFOLIO_DATA,
+              templateId: tpl.id,
+            };
+
+            return (
+              <SelectableCard
+                key={tpl.id}
+                id={`template-card-${tpl.id}`}
+                selected={selectedTemplate === tpl.id}
+                onClick={() => onSelectTemplate(tpl.id)}
+                title={tpl.title}
+                badge={tpl.badge}
+                description={tpl.description}
+                thumbnail={
+                  <div className="w-full h-full bg-white flex items-center justify-center overflow-hidden">
+                    <TemplatePreview
+                      data={previewData}
+                      fitMode="contain"
+                      className="w-full h-full"
+                    />
+                  </div>
+                }
+              />
+            );
+          })}
         </div>
 
         {/* Bottom Actions Bar */}

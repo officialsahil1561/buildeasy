@@ -59,7 +59,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
 
       <div className="space-y-3">
         {thumbnail && (
-          <div className="w-full h-36 rounded-lg bg-[#F8FAFC] border border-[#E5E7EB] p-2.5 overflow-hidden flex items-center justify-center">
+          <div className="w-full h-44 rounded-lg bg-[#F8FAFC] border border-[#E5E7EB] p-1.5 overflow-hidden flex items-center justify-center">
             {thumbnail}
           </div>
         )}

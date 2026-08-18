@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PortfolioData, TemplateId } from '../../types';
 import FormBuilder, { TabType } from '../FormBuilder';
 import DesignTab from '../tabs/DesignTab';
-import ATSTab from '../tabs/ATSTab';
 import LivePreviewPane from '../common/LivePreviewPane';
 import ChangeTemplateModal from '../ChangeTemplateModal';
 import BuildEasyLogo from '../common/BuildEasyLogo';
 import { 
-  ShieldCheck, 
   LayoutTemplate, 
   Eye, 
   ZoomIn, 
@@ -15,6 +13,7 @@ import {
   Download, 
   ArrowLeft, 
   CheckCircle2, 
+  Check,
   Sparkles,
   FileText,
   Paintbrush
@@ -24,8 +23,6 @@ import { triggerAuthoritativePdfExport } from '../../lib/exporter';
 interface ScreenBuilderProps {
   data: PortfolioData;
   onChange: (newData: PortfolioData) => void;
-  activeTab: TabType;
-  onTabChange: (tabId: TabType) => void;
   onNextAtEnd: () => void;
   onBackAtStart: () => void;
 }
@@ -33,13 +30,10 @@ interface ScreenBuilderProps {
 export default function ScreenBuilder({
   data,
   onChange,
-  activeTab,
-  onTabChange,
   onNextAtEnd,
   onBackAtStart,
 }: ScreenBuilderProps) {
-  const [topTab, setTopTab] = useState<'content' | 'design' | 'ats'>('content');
-  const [currentSectionTab, setCurrentSectionTab] = useState<TabType>(activeTab || 'overview');
+  const [topTab, setTopTab] = useState<'content' | 'design'>('content');
   const [zoomLevel, setZoomLevel] = useState(1.0);
   const [isExporting, setIsExporting] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
@@ -116,21 +110,13 @@ export default function ScreenBuilder({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [historyIndex, history]);
 
-  const handleSectionTabChange = (newTab: TabType) => {
-    if (newTab === 'customization') {
-      setTopTab('design');
-    } else {
-      setCurrentSectionTab(newTab);
-      onTabChange(newTab);
-    }
-  };
-
-  // Responsive Fit Zoom calculation based on container width & height
+  // Responsive Fit Zoom calculation based on container width & height and A4/Letter format
   const handleZoomFit = () => {
     if (previewContainerRef.current) {
       const { clientWidth, clientHeight } = previewContainerRef.current;
-      const targetWidth = 800; // standard simulated paper width
-      const targetHeight = 1060; // standard simulated paper height
+      const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
+      const targetWidth = 794; 
+      const targetHeight = isA4 ? 1123 : 1056;
       
       const availableWidth = Math.max(300, clientWidth - 64); // 32px padding on each side
       const availableHeight = Math.max(400, clientHeight - 80);
@@ -138,11 +124,11 @@ export default function ScreenBuilder({
       const scaleW = availableWidth / targetWidth;
       const scaleH = availableHeight / targetHeight;
       
-      // Calculate optimal fit scale, clamped between 0.65 and 1.15
-      const optimalScale = Math.min(Math.max(scaleW, 0.65), 1.15);
+      // Calculate optimal fit scale using both width and height, clamped between 0.5 and 1.25
+      const optimalScale = Math.min(Math.max(Math.min(scaleW, scaleH), 0.5), 1.25);
       setZoomLevel(Number(optimalScale.toFixed(2)));
     } else {
-      setZoomLevel(0.95);
+      setZoomLevel(1.0);
     }
   };
 
@@ -184,8 +170,8 @@ export default function ScreenBuilder({
             title="Rename your resume document"
           />
 
-          <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 hidden md:inline-flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> {saveStatus}
+          <span className="text-[12px] font-medium text-emerald-700 hidden md:inline-flex items-center gap-1">
+            <Check className="w-3.5 h-3.5 text-emerald-600" /> {saveStatus}
           </span>
         </div>
 
@@ -258,18 +244,6 @@ export default function ScreenBuilder({
               <Paintbrush className="w-3.5 h-3.5" />
               Design & Layout
             </button>
-
-            <button
-              onClick={() => setTopTab('ats')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                topTab === 'ats'
-                  ? 'bg-white text-[#111827] shadow-xs border border-[#E5E7EB]'
-                  : 'text-[#6B7280] hover:text-[#111827]'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              ATS Audit
-            </button>
           </div>
 
           {/* Tab Content Pane */}
@@ -278,8 +252,6 @@ export default function ScreenBuilder({
               <FormBuilder
                 data={data}
                 onChange={handleDataChange}
-                activeTab={currentSectionTab}
-                onTabChange={handleSectionTabChange}
               />
             )}
 
@@ -288,19 +260,6 @@ export default function ScreenBuilder({
                 <DesignTab
                   data={data}
                   onChange={handleDataChange}
-                />
-              </div>
-            )}
-
-            {topTab === 'ats' && (
-              <div className="h-full overflow-y-auto p-4 md:p-6">
-                <ATSTab
-                  data={data}
-                  onNavigateToTab={(tabId) => {
-                    setTopTab('content');
-                    setCurrentSectionTab(tabId);
-                    onTabChange(tabId);
-                  }}
                 />
               </div>
             )}

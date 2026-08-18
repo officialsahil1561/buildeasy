@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PortfolioData, TemplateId, INITIAL_PORTFOLIO_DATA } from '../types';
-import ScaledResumePreview from './common/ScaledResumePreview';
+import TemplatePreview from './common/TemplatePreview';
 import PillButton from './common/PillButton';
 import { X, Check, Sparkles, Plus, Palette } from 'lucide-react';
 
@@ -28,7 +28,7 @@ export const ACCENT_SWATCHES = [
   { id: 'black', label: 'Solid Black', value: '#18181B' },
 ];
 
-// List of templates that are strictly monochrome ATS formats
+// List of templates that are strictly monochrome formats
 export const MONOCHROME_TEMPLATES: TemplateId[] = ['minimal', 'classic', 'academic'];
 
 // Templates metadata for the gallery with concise, single-line descriptions (<45 chars)
@@ -44,7 +44,7 @@ export const TEMPLATE_LIST: TemplateInfo[] = [
   {
     id: 'minimal',
     name: 'Minimal',
-    description: 'Clean, text-first layout optimized for ATS',
+    description: 'Clean, text-first layout optimized for readability',
     isRecommended: true,
     category: 'Professional',
   },
@@ -245,20 +245,18 @@ export default function ChangeTemplateModal({
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5">
                 <span>Selected Live Preview</span>
               </span>
-              <span className="text-[10px] font-bold bg-white border border-[#CBD5E1] text-[#0F172A] px-2.5 py-0.5 rounded-full capitalize shadow-2xs">
+              <span className="text-[11px] font-semibold text-[#111827] uppercase tracking-wider">
                 {stagedTemplateId}
               </span>
             </div>
 
-            {/* Hugging Page Container (~1:1.3 aspect ratio with ~92-95% width fill) */}
-            <div className="flex-1 w-full flex items-center justify-center overflow-hidden p-2">
-              <div className="w-full max-w-[370px] aspect-[1/1.32] rounded-xl border border-[#CBD5E1] shadow-md bg-white overflow-hidden relative flex flex-col p-1.5">
-                <ScaledResumePreview
-                  data={previewData}
-                  pageWidth={816}
-                  className="w-full h-full"
-                />
-              </div>
+            {/* Page Preview Container */}
+            <div className="flex-1 w-full flex items-center justify-center overflow-hidden p-3 bg-white rounded-xl border border-[#CBD5E1] shadow-inner relative">
+              <TemplatePreview
+                data={previewData}
+                fitMode="contain"
+                className="w-full h-full"
+              />
             </div>
           </div>
 
@@ -375,11 +373,11 @@ export default function ChangeTemplateModal({
                           </div>
                         )}
 
-                        {/* Miniature Scaled Template Instance - strictly Two-Layer Pattern without hover scale */}
-                        <div className="w-full h-full overflow-hidden flex items-start justify-center">
-                          <ScaledResumePreview
+                        {/* Miniature Template Instance */}
+                        <div className="w-full h-full overflow-hidden flex items-center justify-center">
+                          <TemplatePreview
                             data={cardPreviewData}
-                            pageWidth={816}
+                            fitMode="contain"
                             className="w-full h-full"
                           />
                         </div>

@@ -251,6 +251,19 @@ export function resetPortfolio(): PortfolioData {
 }
 
 /**
+ * Completely clear all persistent resume, wizard, screen, and tab storage for atomic Start Over.
+ */
+export function clearAllStorage(): void {
+  try {
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+  } catch {
+    // Ignore
+  }
+}
+
+/**
  * Wizard Draft Persistence
  */
 export function persistWizardDraft(data: PortfolioData): void {
