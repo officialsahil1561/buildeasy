@@ -113,6 +113,7 @@ function SectionCard({
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
+            data-tour="section-reorder"
             className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-1 rounded transition-colors"
             title={`Drag to reorder ${title} section`}
             aria-label={`Drag to reorder ${title} section`}
@@ -153,6 +154,7 @@ function SectionCard({
           <button
             type="button"
             onClick={onToggleCollapse}
+            data-tour="section-expand"
             aria-label={isCollapsed ? `Expand ${title} section` : `Collapse ${title} section`}
             title={isCollapsed ? `Expand ${title} section` : `Collapse ${title} section`}
             className="p-1.5 text-gray-500 hover:text-black hover:bg-gray-100 rounded transition-colors cursor-pointer flex items-center"
@@ -353,7 +355,7 @@ export default function FormBuilder({ data, onChange }: FormBuilderProps) {
               items={sectionOrder}
               strategy={verticalListSortingStrategy}
             >
-              <div className="space-y-6">
+              <div className="space-y-6" data-tour="section-list">
                 {sectionOrder.map((sectionId, idx) => {
                   const meta = SECTION_METADATA[sectionId];
                   if (!meta) return null;

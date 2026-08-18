@@ -80,6 +80,7 @@ export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: 
             type="button"
             onClick={handleExportPdf}
             disabled={isExporting}
+            data-tour="download"
             className="text-xs font-bold text-white bg-[#111827] hover:bg-[#27272a] px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
           >
             <Download className="w-4 h-4" />

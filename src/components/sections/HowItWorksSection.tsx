@@ -30,12 +30,12 @@ export default function HowItWorksSection({ className = '', hideTopBorder = fals
                Start with one of six professionally designed resume templates. Pick a style that fits your experience and industry.
              </p>
           </div>
-          <div className="order-1 md:order-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-8 flex justify-center items-center">
+          <div className="order-1 md:order-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 sm:p-6 md:p-8 flex justify-center items-center overflow-hidden">
              <TemplateSelectorMockup />
           </div>
 
           {/* Step 2 */}
-          <div className="order-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-8 flex justify-center items-center">
+          <div className="order-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 sm:p-6 md:p-8 flex justify-center items-center overflow-hidden">
             <CompactBuilderMockup activeSection="experience" showReorder={true} />
           </div>
           <div className="order-4 flex flex-col justify-center max-w-md mx-auto md:mx-0">
@@ -58,12 +58,12 @@ export default function HowItWorksSection({ className = '', hideTopBorder = fals
                Adjust the design while your finished resume updates instantly.
              </p>
           </div>
-          <div className="order-5 md:order-6 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-8 flex justify-center items-center">
+          <div className="order-5 md:order-6 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 sm:p-6 md:p-8 flex justify-center items-center overflow-hidden">
             <DesignControlsMockup />
           </div>
           
           {/* Step 4 */}
-          <div className="order-7 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-8 flex justify-center items-center">
+          <div className="order-7 bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 sm:p-6 md:p-8 flex justify-center items-center overflow-hidden">
             <ExportMockup />
           </div>
           <div className="order-8 flex flex-col justify-center max-w-md mx-auto md:mx-0">

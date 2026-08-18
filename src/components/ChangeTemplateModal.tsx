@@ -240,7 +240,7 @@ export default function ChangeTemplateModal({
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           
           {/* Left Column: Live Scaled Preview (~40% width on desktop) */}
-          <div className="w-full md:w-[42%] lg:w-[40%] bg-[#F8FAFC] border-b md:border-b-0 md:border-r border-[#E5E7EB] flex flex-col items-center justify-start p-3.5 sm:p-4 overflow-hidden relative">
+          <div className="w-full md:w-[42%] lg:w-[40%] h-44 sm:h-56 md:h-auto shrink-0 bg-[#F8FAFC] border-b md:border-b-0 md:border-r border-[#E5E7EB] flex flex-col items-center justify-start p-2.5 sm:p-4 overflow-hidden relative">
             <div className="w-full flex items-center justify-between mb-2.5 px-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5">
                 <span>Selected Live Preview</span>
