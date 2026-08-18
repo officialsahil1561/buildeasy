@@ -19,7 +19,7 @@ export const EntryHeader = ({ left, right, rightClassName = 'text-[9.5pt] text-g
 export const EntryBullets = ({ bullets, className = "list-disc list-outside ml-5 space-y-1.5 text-[10pt] text-gray-700 leading-relaxed mt-1" }: { bullets: string[], className?: string }) => (
   <ul className={className}>
     {bullets.map((bullet, idx) => (
-      <li key={idx}>{bullet}</li>
+      <li key={`bullet-${bullet.slice(0, 30).trim()}-${idx}`}>{bullet}</li>
     ))}
   </ul>
 );

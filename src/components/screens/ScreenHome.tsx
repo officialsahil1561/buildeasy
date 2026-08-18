@@ -93,7 +93,7 @@ export default function ScreenHome({ onStartBuilder, hasResumeData }: ScreenHome
                <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-4 flex flex-col gap-3">
                  <div className="flex justify-between items-center pb-2 border-b border-[#E5E7EB]">
                    <span className="font-semibold text-sm">Select Template Style</span>
-                   <span className="text-xs text-blue-600">4 curated layouts</span>
+                   <span className="text-xs text-blue-600">6 curated layouts</span>
                  </div>
                  <div className="grid grid-cols-2 gap-3">
                    <div className="border-2 border-blue-600 rounded-lg p-3 bg-blue-50/30">

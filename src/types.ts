@@ -9,20 +9,21 @@ export interface BasicInfo {
   phone?: string;
   location?: string;
   website?: string;
-  photo?: string; // base64 representation of profile photo
-  summary?: string; // Optional professional summary for ATS keyword optimization
+  photo?: string;
+  summary?: string;
   linkedin?: string;
   github?: string;
   portfolio?: string;
 }
 
 export interface LinkItem {
+  id?: string;
   label: string;
   url: string;
 }
 
 export interface EducationItem {
-  id?: string;
+  id: string;
   institution: string;
   degree: string;
   field: string;
@@ -34,7 +35,7 @@ export interface EducationItem {
 }
 
 export interface ExperienceItem {
-  id?: string;
+  id: string;
   current?: boolean;
   org: string;
   role: string;
@@ -45,18 +46,18 @@ export interface ExperienceItem {
 }
 
 export interface ProjectItem {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   tech: string[];
-  link?: string; // treated as live URL
+  link?: string;
   githubUrl?: string;
   bullets?: string[];
-  image?: string; // base64 representation of project image
+  image?: string;
 }
 
 export interface AchievementItem {
-  id?: string;
+  id: string;
   title: string;
   issuer: string;
   date: string;
@@ -64,6 +65,7 @@ export interface AchievementItem {
 }
 
 export interface SkillCategory {
+  id?: string;
   name: string;
   skills: string[];
 }
@@ -83,7 +85,6 @@ export type TemplateCategory =
   | 'academic'
   | 'compact';
 
-
 export type FontId = 'inter' | 'arial' | 'helvetica' | 'georgia' | 'times';
 export type SpacingId = 'compact' | 'balanced' | 'comfortable';
 export type PageSizeId = 'a4' | 'letter';
@@ -97,7 +98,7 @@ export interface CustomizationSettings {
 }
 
 export interface CustomSectionItem {
-  id?: string;
+  id: string;
   title: string;
   subtitle?: string;
   date?: string;
@@ -125,50 +126,59 @@ export interface PortfolioData {
 
 export type ResumeData = PortfolioData;
 
-export const DEFAULT_CUSTOMIZATION: CustomizationSettings = {
-  font: 'inter',
-  spacing: 'balanced',
-  pageSize: 'letter',
-  sectionOrder: ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'achievements', 'publications', 'custom'],
-  hiddenSections: [],
-};
+/**
+ * Factory functions to create fresh, decoupled objects with robust unique IDs
+ */
+export function createDefaultCustomization(): CustomizationSettings {
+  return {
+    font: 'inter',
+    spacing: 'balanced',
+    pageSize: 'letter',
+    sectionOrder: ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'achievements', 'publications', 'custom'],
+    hiddenSections: [],
+  };
+}
 
-export const EMPTY_RESUME_DATA: PortfolioData = {
-  templateId: 'minimal',
-  resumeName: 'Untitled Resume',
-  customization: DEFAULT_CUSTOMIZATION,
-  basicInfo: {
-    firstName: '',
-    lastName: '',
-    name: '',
-    tagline: '',
-    email: '',
-    phone: '',
-    location: '',
-    website: '',
-    photo: '',
-    summary: '',
-    linkedin: '',
-    github: '',
-    portfolio: '',
-  },
-  links: [],
-  education: [],
-  experience: [],
-  projects: [],
-  skills: [],
-  skillCategories: [],
-  achievements: [],
-  certifications: [],
-  publications: [],
-  customSections: [],
-};
+export function createBlankResume(): PortfolioData {
+  return {
+    templateId: 'minimal',
+    resumeName: 'Untitled Resume',
+    customization: createDefaultCustomization(),
+    basicInfo: {
+      firstName: '',
+      lastName: '',
+      name: '',
+      tagline: '',
+      email: '',
+      phone: '',
+      location: '',
+      website: '',
+      photo: '',
+      summary: '',
+      linkedin: '',
+      github: '',
+      portfolio: '',
+    },
+    links: [],
+    education: [],
+    experience: [],
+    projects: [],
+    skills: [],
+    skillCategories: [],
+    achievements: [],
+    certifications: [],
+    publications: [],
+    customSections: [],
+  };
+}
 
-export const BLANK_RESUME_DATA: PortfolioData = EMPTY_RESUME_DATA;
+export const DEFAULT_CUSTOMIZATION: CustomizationSettings = createDefaultCustomization();
+export const EMPTY_RESUME_DATA: PortfolioData = createBlankResume();
+export const BLANK_RESUME_DATA: PortfolioData = createBlankResume();
 
 export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
   templateId: 'minimal',
-  customization: DEFAULT_CUSTOMIZATION,
+  customization: createDefaultCustomization(),
   basicInfo: {
     firstName: 'Jane',
     lastName: 'Doe',
@@ -185,12 +195,13 @@ export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
     portfolio: 'https://example.com',
   },
   links: [
-    { label: 'LinkedIn', url: 'https://linkedin.com/in/janedoe' },
-    { label: 'GitHub', url: 'https://github.com/janedoe' },
-    { label: 'Portfolio', url: 'https://example.com' },
+    { id: 'link-1', label: 'LinkedIn', url: 'https://linkedin.com/in/janedoe' },
+    { id: 'link-2', label: 'GitHub', url: 'https://github.com/janedoe' },
+    { id: 'link-3', label: 'Portfolio', url: 'https://example.com' },
   ],
   education: [
     {
+      id: 'edu-1',
       institution: 'University of California, Berkeley',
       degree: 'B.S. in Computer Science',
       field: 'Software Engineering & Distributed Systems',
@@ -202,95 +213,83 @@ export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
   ],
   experience: [
     {
+      id: 'exp-1',
       org: 'Enterprise Systems',
       role: 'Staff Software Engineer',
       startDate: '2022',
       endDate: 'Present',
       bullets: [
         'Architected real-time collaboration canvas supporting 50k+ daily concurrent users with sub-15ms sync latency.',
-        'Led team of 8 engineers across frontend, distributed backend, and platform reliability initiatives.',
-        'Cut client bundle sizes by 42% and achieved perfect 100 Lighthouse Web Vitals scores across all core flows.',
+        'Reduced cloud infrastructure compute spend by 38% via Redis clustering and efficient protobuf serialization.',
+        'Mentored 12 mid-level and junior engineers on high-throughput microservices architecture and zero-downtime migrations.',
       ],
     },
     {
-      org: 'Cloud Solutions Inc',
-      role: 'Senior Frontend Engineer',
+      id: 'exp-2',
+      org: 'CloudScale Technologies',
+      role: 'Senior Software Engineer',
       startDate: '2020',
       endDate: '2022',
       bullets: [
-        'Spearheaded redesign of enterprise analytics dashboard, driving 35% growth in customer retention.',
-        'Built enterprise design system in React/TypeScript adopted across 14 cross-functional product squads.',
+        'Engineered distributed telemetry streaming engine processing 1.4B events/day with Apache Kafka and Go.',
+        'Spearheaded automated CI/CD pipeline improvements cutting deployment lead time from 45 minutes to 7 minutes.',
       ],
     },
   ],
   projects: [
     {
-      title: 'DevPulse Telemetry Platform',
-      description: 'Zero-overhead observability pipeline for serverless architectures with real-time tracing.',
-      tech: ['React', 'TypeScript', 'Node.js', 'ClickHouse', 'Tailwind CSS'],
-      link: 'https://github.com/janedoe/devpulse',
-    },
-    {
-      title: 'TypeSync Engine',
-      description: 'Distributed CRDT-based state reconciliation library with conflict-free optimistic updates.',
-      tech: ['TypeScript', 'WebSockets', 'WebWorkers'],
-      link: 'https://github.com/janedoe/typesync',
+      id: 'proj-1',
+      title: 'Real-time Vector Canvas Engine',
+      description: 'High-performance vector rendering and collaborative whiteboard system supporting WebGL and multi-cursor sync.',
+      tech: ['React', 'TypeScript', 'WebGL', 'CRDT', 'Node.js'],
+      link: 'https://example.com/canvas',
+      bullets: [
+        'Implemented Conflict-free Replicated Data Type (CRDT) algorithms to resolve concurrent vector strokes without locking.',
+      ],
     },
   ],
   skills: [
-    'TypeScript',
-    'JavaScript',
-    'Python',
-    'SQL',
     'React',
-    'Next.js',
-    'Tailwind CSS',
+    'TypeScript',
     'Node.js',
-    'GraphQL',
+    'Go',
     'PostgreSQL',
-    'Docker',
-    'CI/CD Pipelines',
     'Distributed Systems',
-    'System Architecture',
-    'Web Performance',
+    'Docker',
+    'Kubernetes',
+    'AWS',
+    'GraphQL',
+    'Microservices',
+    'CI/CD Pipelines',
   ],
   skillCategories: [
     {
-      name: 'Languages',
-      skills: ['TypeScript', 'JavaScript', 'Python', 'SQL'],
+      id: 'cat-1',
+      name: 'Languages & Frameworks',
+      skills: ['React', 'TypeScript', 'Node.js', 'Go', 'GraphQL'],
     },
     {
-      name: 'Frontend',
-      skills: ['React', 'Next.js', 'Tailwind CSS', 'Web Performance'],
-    },
-    {
-      name: 'Backend',
-      skills: ['Node.js', 'GraphQL', 'REST APIs', 'Microservices'],
-    },
-    {
-      name: 'Databases',
-      skills: ['PostgreSQL', 'Redis', 'ClickHouse'],
-    },
-    {
-      name: 'DevOps & Cloud',
-      skills: ['Docker', 'CI/CD Pipelines', 'AWS', 'Serverless'],
-    },
-    {
-      name: 'Systems',
-      skills: ['Distributed Systems', 'System Architecture', 'CRDTs'],
+      id: 'cat-2',
+      name: 'Infrastructure & Cloud',
+      skills: ['Docker', 'Kubernetes', 'AWS', 'PostgreSQL', 'CI/CD Pipelines'],
     },
   ],
   achievements: [
     {
-      title: 'AWS Certified Solutions Architect – Professional',
-      issuer: 'Amazon Web Services',
+      id: 'ach-1',
+      title: '1st Place Winner — Global Distributed Systems Hackathon',
+      issuer: 'Tech Innovations Summit',
       date: '2023',
     },
+  ],
+  certifications: [
     {
-      title: '1st Place – Global Open Source Hackathon',
-      issuer: 'OSS Foundation',
-      date: '2022',
+      id: 'cert-1',
+      title: 'AWS Certified Solutions Architect — Professional',
+      subtitle: 'Amazon Web Services',
+      date: '2023',
     },
   ],
+  publications: [],
+  customSections: [],
 };
-

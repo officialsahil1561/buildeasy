@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useId } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 
 interface ConfirmModalProps {
@@ -22,6 +22,8 @@ export default function ConfirmModal({
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
+  const titleId = useId();
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -34,16 +36,23 @@ export default function ConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div
         className="bg-white border border-[#E5E7EB] rounded-2xl shadow-xl max-w-md w-full p-6 relative space-y-4 animate-in zoom-in-95 duration-150"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="confirm-modal-title"
+        aria-labelledby={titleId}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 rounded-lg p-1 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 rounded-lg p-1 transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -61,7 +70,7 @@ export default function ConfirmModal({
           </div>
 
           <div>
-            <h3 id="confirm-modal-title" className="text-base font-bold text-[#111827]">
+            <h3 id={titleId} className="text-base font-bold text-[#111827]">
               {title}
             </h3>
             <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">{message}</p>
@@ -78,6 +87,7 @@ export default function ConfirmModal({
           </button>
           <button
             type="button"
+            autoFocus
             onClick={() => {
               onConfirm();
               onClose();

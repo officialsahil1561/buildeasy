@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PortfolioData, TemplateId } from '../../types';
 import FormBuilder, { TabType } from '../FormBuilder';
 import DesignTab from '../tabs/DesignTab';
@@ -19,7 +19,7 @@ import {
   FileText,
   Paintbrush
 } from 'lucide-react';
-import { triggerPdfExport } from '../../lib/exporter';
+import { triggerAuthoritativePdfExport } from '../../lib/exporter';
 
 interface ScreenBuilderProps {
   data: PortfolioData;
@@ -40,12 +40,14 @@ export default function ScreenBuilder({
 }: ScreenBuilderProps) {
   const [topTab, setTopTab] = useState<'content' | 'design' | 'ats'>('content');
   const [currentSectionTab, setCurrentSectionTab] = useState<TabType>(activeTab || 'overview');
-  const [zoomLevel, setZoomLevel] = useState(0.85);
+  const [zoomLevel, setZoomLevel] = useState(1.0);
   const [isExporting, setIsExporting] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'Saved' | 'Saving...'>('Saved');
 
-  // History stack for Undo / Redo
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  // History stack for Undo / Redo (limited to 40 states)
   const [history, setHistory] = useState<PortfolioData[]>([data]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -53,12 +55,12 @@ export default function ScreenBuilder({
     setSaveStatus('Saving...');
     onChange(newData);
     
-    // Add to history
+    // Add to history with max 40 snapshots and forward-branch invalidation
     setHistory((prev) => {
-      const updated = prev.slice(0, historyIndex + 1);
+      const updated = prev.slice(Math.max(0, historyIndex - 39), historyIndex + 1);
       return [...updated, newData];
     });
-    setHistoryIndex((prev) => prev + 1);
+    setHistoryIndex((prev) => Math.min(prev + 1, 39));
 
     setTimeout(() => {
       setSaveStatus('Saved');
@@ -81,6 +83,39 @@ export default function ScreenBuilder({
     }
   };
 
+  // Keyboard shortcut listener for Undo / Redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      
+      const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+      if (isCtrlOrCmd && !e.altKey) {
+        if (e.key.toLowerCase() === 'z') {
+          if (e.shiftKey) {
+            if (!isInput) {
+              e.preventDefault();
+              handleRedo();
+            }
+          } else {
+            if (!isInput) {
+              e.preventDefault();
+              handleUndo();
+            }
+          }
+        } else if (e.key.toLowerCase() === 'y' && !e.shiftKey) {
+          if (!isInput) {
+            e.preventDefault();
+            handleRedo();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [historyIndex, history]);
+
   const handleSectionTabChange = (newTab: TabType) => {
     if (newTab === 'customization') {
       setTopTab('design');
@@ -90,9 +125,33 @@ export default function ScreenBuilder({
     }
   };
 
-  const handleZoomIn = () => setZoomLevel((prev) => Math.min(Number((prev + 0.1).toFixed(2)), 1.5));
-  const handleZoomOut = () => setZoomLevel((prev) => Math.max(Number((prev - 0.1).toFixed(2)), 0.4));
-  const handleZoomFit = () => setZoomLevel(0.85);
+  // Responsive Fit Zoom calculation based on container width & height
+  const handleZoomFit = () => {
+    if (previewContainerRef.current) {
+      const { clientWidth, clientHeight } = previewContainerRef.current;
+      const targetWidth = 800; // standard simulated paper width
+      const targetHeight = 1060; // standard simulated paper height
+      
+      const availableWidth = Math.max(300, clientWidth - 64); // 32px padding on each side
+      const availableHeight = Math.max(400, clientHeight - 80);
+
+      const scaleW = availableWidth / targetWidth;
+      const scaleH = availableHeight / targetHeight;
+      
+      // Calculate optimal fit scale, clamped between 0.65 and 1.15
+      const optimalScale = Math.min(Math.max(scaleW, 0.65), 1.15);
+      setZoomLevel(Number(optimalScale.toFixed(2)));
+    } else {
+      setZoomLevel(0.95);
+    }
+  };
+
+  useEffect(() => {
+    handleZoomFit();
+  }, []);
+
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(Number((prev + 0.05).toFixed(2)), 1.5));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(Number((prev - 0.05).toFixed(2)), 0.4));
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#F7F8F9] overflow-hidden">
@@ -134,7 +193,7 @@ export default function ScreenBuilder({
           <button 
             onClick={handleUndo}
             disabled={historyIndex <= 0}
-            className="text-xs px-2.5 py-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed font-medium transition-colors"
+            className="text-xs px-2.5 py-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
             title="Undo (Ctrl+Z)"
           >
             Undo
@@ -142,157 +201,170 @@ export default function ScreenBuilder({
           <button 
             onClick={handleRedo}
             disabled={historyIndex >= history.length - 1}
-            className="text-xs px-2.5 py-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed font-medium transition-colors"
-            title="Redo (Ctrl+Y)"
+            className="text-xs px-2.5 py-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+            title="Redo (Ctrl+Shift+Z)"
           >
             Redo
           </button>
-          
-          <button 
+
+          <div className="h-4 w-px bg-gray-200 mx-1 hidden sm:block" />
+
+          <button
             onClick={() => setIsTemplateModalOpen(true)}
-            className="text-xs px-3 py-1.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <LayoutTemplate className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Change Template</span>
+            <span className="hidden sm:inline">Templates</span>
           </button>
 
-          <button 
-            onClick={async () => {
-              setIsExporting(true);
-              try {
-                await triggerPdfExport(data);
-              } catch (e) {
-                console.error('Export failed', e);
-              } finally {
-                setIsExporting(false);
-              }
-            }} 
-            disabled={isExporting}
-            className="text-xs px-4 py-1.5 bg-[#111827] hover:bg-[#27272a] text-white font-semibold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+          <button
+            onClick={onNextAtEnd}
+            className="text-xs font-bold text-white bg-[#111827] hover:bg-black px-3.5 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
+            <Eye className="w-3.5 h-3.5" />
+            <span>Preview & Export</span>
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN WORKSPACE WITH SPLIT VIEW */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* 2. MAIN SPLIT INTERFACE */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         
-        {/* Left Pane: Editor */}
-        <div className="w-full lg:w-[48%] xl:w-[45%] h-full flex flex-col shrink-0 border-r border-[#E5E7EB] bg-white">
-          {/* Sub Navigation Bar */}
-          <div className="flex border-b border-[#E5E7EB] bg-[#FAFAFA] shrink-0">
-            <button 
-              onClick={() => setTopTab('content')} 
-              className={`flex-1 py-3 text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${topTab === 'content' ? 'border-[#111827] text-[#111827] bg-white' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+        {/* LEFT PANEL: EDITORS & TABS */}
+        <div className="w-full md:w-[500px] lg:w-[540px] xl:w-[580px] h-full flex flex-col bg-white border-r border-[#E5E7EB] shrink-0 overflow-hidden">
+          
+          {/* Main Top Navigation Tabs */}
+          <div className="h-12 border-b border-[#E5E7EB] flex items-center px-4 gap-1 bg-[#FAFAFA] shrink-0">
+            <button
+              onClick={() => setTopTab('content')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                topTab === 'content'
+                  ? 'bg-white text-[#111827] shadow-xs border border-[#E5E7EB]'
+                  : 'text-[#6B7280] hover:text-[#111827]'
+              }`}
             >
-              <FileText className="w-4 h-4" />
-              <span>Content</span>
+              <FileText className="w-3.5 h-3.5" />
+              Content
             </button>
-            <button 
-              onClick={() => setTopTab('design')} 
-              className={`flex-1 py-3 text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${topTab === 'design' ? 'border-[#111827] text-[#111827] bg-white' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+
+            <button
+              onClick={() => setTopTab('design')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                topTab === 'design'
+                  ? 'bg-white text-[#111827] shadow-xs border border-[#E5E7EB]'
+                  : 'text-[#6B7280] hover:text-[#111827]'
+              }`}
             >
-              <Paintbrush className="w-4 h-4" />
-              <span>Design</span>
+              <Paintbrush className="w-3.5 h-3.5" />
+              Design & Layout
             </button>
-            <button 
-              onClick={() => setTopTab('ats')} 
-              className={`flex-1 py-3 text-xs md:text-sm font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${topTab === 'ats' ? 'border-[#111827] text-[#111827] bg-white' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+
+            <button
+              onClick={() => setTopTab('ats')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                topTab === 'ats'
+                  ? 'bg-white text-[#111827] shadow-xs border border-[#E5E7EB]'
+                  : 'text-[#6B7280] hover:text-[#111827]'
+              }`}
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>ATS Score</span>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              ATS Audit
             </button>
           </div>
 
-          {/* Editor Body */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Tab Content Pane */}
+          <div className="flex-1 overflow-hidden min-h-0 bg-white">
             {topTab === 'content' && (
-              <FormBuilder 
-                data={data} 
-                onChange={handleDataChange} 
-                activeTab={currentSectionTab} 
-                onTabChange={handleSectionTabChange} 
-                onNextAtEnd={onNextAtEnd} 
-                onBackAtStart={onBackAtStart} 
+              <FormBuilder
+                data={data}
+                onChange={handleDataChange}
+                activeTab={currentSectionTab}
+                onTabChange={handleSectionTabChange}
               />
             )}
+
             {topTab === 'design' && (
-              <DesignTab 
-                data={data} 
-                onChange={handleDataChange} 
-              />
+              <div className="h-full overflow-y-auto p-4 md:p-6">
+                <DesignTab
+                  data={data}
+                  onChange={handleDataChange}
+                />
+              </div>
             )}
+
             {topTab === 'ats' && (
-              <ATSTab 
-                data={data} 
-              />
+              <div className="h-full overflow-y-auto p-4 md:p-6">
+                <ATSTab
+                  data={data}
+                  onNavigateToTab={(tabId) => {
+                    setTopTab('content');
+                    setCurrentSectionTab(tabId);
+                    onTabChange(tabId);
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>
 
-        {/* Right Pane: Live Document Preview */}
-        <div className="hidden lg:flex flex-1 h-full flex-col bg-[#EDEDED] relative overflow-hidden">
-          {/* Zoom & View Controls */}
-          <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-xs px-2 py-1 rounded-full shadow-md border border-gray-200 text-xs font-semibold text-gray-700">
-            <button 
-              onClick={handleZoomOut} 
-              className="p-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+        {/* RIGHT PANEL: LIVE PREVIEW STAGE */}
+        <div 
+          ref={previewContainerRef}
+          className="hidden md:flex flex-1 flex-col bg-[#E5E7EB]/60 relative overflow-hidden"
+        >
+          {/* Zoom & Canvas Controls Floating Toolbar */}
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur-xs p-1 rounded-lg border border-[#D1D5DB] shadow-md">
+            <button
+              onClick={handleZoomOut}
+              className="p-1.5 text-[#4B5563] hover:text-[#111827] hover:bg-gray-100 rounded transition-colors cursor-pointer"
               title="Zoom Out"
             >
-              <ZoomOut className="w-3.5 h-3.5" />
+              <ZoomOut className="w-4 h-4" />
             </button>
-            <span className="px-1.5 text-[11px] font-mono min-w-[40px] text-center">
+            <span className="text-[11px] font-bold text-[#4B5563] px-1.5 min-w-[38px] text-center">
               {Math.round(zoomLevel * 100)}%
             </span>
-            <button 
-              onClick={handleZoomIn} 
-              className="p-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+            <button
+              onClick={handleZoomIn}
+              className="p-1.5 text-[#4B5563] hover:text-[#111827] hover:bg-gray-100 rounded transition-colors cursor-pointer"
               title="Zoom In"
             >
-              <ZoomIn className="w-3.5 h-3.5" />
+              <ZoomIn className="w-4 h-4" />
             </button>
-            <div className="h-3 w-px bg-gray-200 mx-0.5" />
-            <button 
-              onClick={handleZoomFit} 
-              className="px-2 py-1 hover:bg-gray-100 rounded-full text-[11px] font-medium transition-colors cursor-pointer"
-              title="Reset Zoom"
+            <div className="w-px h-3.5 bg-[#E5E7EB] mx-0.5" />
+            <button
+              onClick={handleZoomFit}
+              className="text-[10px] font-bold text-[#4B5563] hover:text-[#111827] hover:bg-gray-100 px-2 py-1 rounded transition-colors cursor-pointer"
             >
               Fit
             </button>
           </div>
-          
-          {/* Scrollable Canvas Sheet */}
-          <div className="flex-1 overflow-y-auto p-6 md:p-10 flex justify-center items-start">
+
+          {/* Interactive Document Sheet Canvas - Centered with balanced padding */}
+          <div className="flex-1 overflow-auto flex justify-center items-start p-6 lg:p-10">
             <div 
-              style={{ 
-                transform: `scale(${zoomLevel})`, 
-                transformOrigin: 'top center', 
-                transition: 'transform 0.15s ease-out',
-                width: '794px', // Standard A4 width reference in px for crystal-clear render
-              }} 
-              className="flex justify-center pb-24 shrink-0"
+              style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center' }}
+              className="transition-transform duration-100 ease-out my-2"
             >
-              <LivePreviewPane data={data} className="w-full shadow-2xl rounded-sm" />
+              <LivePreviewPane data={data} />
             </div>
           </div>
         </div>
 
       </div>
 
-      {/* Change Template Modal */}
+      {/* Template Selection Modal */}
       <ChangeTemplateModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         currentTemplateId={data.templateId}
         currentAccentColor={data.accentColor}
         resumeData={data}
-        onApplyTemplate={(templateId, accentColor) => {
+        onApplyTemplate={(newTemplateId, newAccentColor) => {
           handleDataChange({
             ...data,
-            templateId,
-            ...(accentColor !== undefined ? { accentColor } : {}),
+            templateId: newTemplateId,
+            ...(newAccentColor ? { accentColor: newAccentColor } : {}),
           });
           setIsTemplateModalOpen(false);
         }}

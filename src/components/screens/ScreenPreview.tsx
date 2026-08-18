@@ -1,156 +1,117 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PortfolioData, TemplateId } from '../../types';
+import Footer from '../common/Footer';
 import LivePreviewPane from '../common/LivePreviewPane';
-import PillButton from '../common/PillButton';
 import ChangeTemplateModal from '../ChangeTemplateModal';
-import { generatePdfBlobAndDownload, triggerPdfExport, ExportResult } from '../../lib/exporter';
-import { ArrowLeft, Download, LayoutTemplate, ShieldCheck, Loader2, AlertTriangle, Printer } from 'lucide-react';
-import ResumeCheckPanel from '../ResumeCheckPanel';
-import { TabType } from '../FormBuilder';
+import { 
+  Download, 
+  ArrowLeft, 
+  LayoutTemplate, 
+  CheckCircle2, 
+  FileCode
+} from 'lucide-react';
+import { triggerAuthoritativePdfExport, downloadBackupJson } from '../../lib/exporter';
+import { analyzeResume } from '../../lib/resume-analysis';
 
 interface ScreenPreviewProps {
   data: PortfolioData;
   onBackToEdit: () => void;
-  onProceedToExport: (result?: ExportResult) => void;
-  onNavigateToTab?: (tabId: TabType) => void;
-  onSwitchTemplate: (t: TemplateId, accentColor?: string) => void;
+  onSelectTemplate: (templateId: TemplateId, accentColor?: string) => void;
 }
 
-export default function ScreenPreview({
-  data,
-  onBackToEdit,
-  onProceedToExport,
-  onNavigateToTab,
-  onSwitchTemplate,
-}: ScreenPreviewProps) {
-  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
-  const [isCheckPanelOpen, setIsCheckPanelOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
+export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: ScreenPreviewProps) {
+  const [isExporting, setIsExporting] = React.useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
 
-  const handleDownloadAndProceed = async () => {
+  const analysis = React.useMemo(() => analyzeResume(data), [data]);
+
+  const handleExportPdf = async () => {
     setIsExporting(true);
-    setExportError(null);
-
     try {
-      const res = await generatePdfBlobAndDownload(data);
+      await triggerAuthoritativePdfExport(data);
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
       setIsExporting(false);
-      if (res.success) {
-        onProceedToExport(res);
-      } else {
-        setExportError(res.error || 'Failed to generate PDF file. Please try again.');
-      }
-    } catch (err: any) {
-      setIsExporting(false);
-      setExportError(err.message || 'An error occurred while exporting.');
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#F5F7FA] overflow-hidden">
-      {/* Top Review Toolbar */}
-      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8 py-3 flex flex-wrap justify-between items-center gap-3 shrink-0 select-none">
-        
-        {/* Left: Edit button */}
-        <div className="flex items-center gap-2">
-          <PillButton
-            variant="secondary"
+    <div className="flex-1 flex flex-col min-h-screen bg-[#E5E7EB] overflow-y-auto">
+      {/* 1. Header Toolbar */}
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
             onClick={onBackToEdit}
-            iconLeft={<ArrowLeft className="w-3.5 h-3.5" />}
-            className="text-xs py-2 px-4 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors cursor-pointer"
           >
-            Edit Form
-          </PillButton>
-        </div>
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Editor</span>
+          </button>
 
-        {/* Center: Change Template Modal Trigger */}
-        <div className="flex items-center gap-2">
-          <PillButton
-            id="preview-change-template-btn"
-            variant="ghost"
-            onClick={() => setIsTemplateModalOpen(true)}
-            iconLeft={<LayoutTemplate className="w-3.5 h-3.5 text-[#64748B]" />}
-            className="text-xs py-1.5 px-3 bg-[#F3F4F6] border border-[#E5E7EB] hover:bg-[#E5E7EB] text-[#0F172A] cursor-pointer"
-          >
-            <span className="font-semibold">Template:</span>
-            <span className="capitalize ml-1 text-[#2563EB] font-bold">{data.templateId}</span>
-            {data.accentColor && (
-              <span
-                className="w-2.5 h-2.5 rounded-full ml-1 border border-black/20"
-                style={{ backgroundColor: data.accentColor }}
-                title={`Accent: ${data.accentColor}`}
-              />
-            )}
-          </PillButton>
-        </div>
+          <div className="h-4 w-px bg-gray-200 hidden sm:block" />
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2">
-          <PillButton
-            variant="secondary"
-            onClick={() => setIsCheckPanelOpen(true)}
-            iconLeft={<ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />}
-            className="text-xs py-2 px-3.5 cursor-pointer"
-          >
-            Check Resume
-          </PillButton>
-          <PillButton
-            variant="secondary"
-            onClick={() => triggerPdfExport(data)}
-            iconLeft={<Printer className="w-3.5 h-3.5 text-[#2563EB]" />}
-            className="text-xs py-2 px-3.5 bg-[#EFF6FF] border border-[#BFDBFE] hover:bg-[#DBEAFE] text-[#1D4ED8] cursor-pointer"
-            title="Generates 100% vector PDF with selectable, copyable text and clickable links for ATS applications"
-          >
-            Vector PDF (ATS)
-          </PillButton>
-          <PillButton
-            variant="primary"
-            onClick={handleDownloadAndProceed}
-            disabled={isExporting}
-            iconLeft={isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-            className="text-xs py-2 px-4 cursor-pointer disabled:opacity-50"
-          >
-            {isExporting ? 'Generating...' : 'Download PDF'}
-          </PillButton>
-        </div>
-      </div>
-
-      {exportError && (
-        <div className="bg-rose-50 border-b border-rose-200 px-6 py-2.5 text-xs text-rose-700 font-medium flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            <span>{exportError}</span>
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-sm font-bold text-gray-900">{data.resumeName || 'My Resume'}</span>
+            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Score: {analysis.score}%
+            </span>
           </div>
-          <button onClick={() => setExportError(null)} className="text-rose-600 hover:text-rose-900 font-bold">Dismiss</button>
         </div>
-      )}
 
-      {/* Main Document Review Sheet Container */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start">
-        <LivePreviewPane data={data} isFullView={true} />
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setIsTemplateModalOpen(true)}
+            className="text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <LayoutTemplate className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Change Template</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => downloadBackupJson(data)}
+            className="text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer hidden md:flex"
+            title="Download full JSON backup of your resume"
+          >
+            <FileCode className="w-3.5 h-3.5" />
+            <span>Save JSON</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportPdf}
+            disabled={isExporting}
+            className="text-xs font-bold text-white bg-[#111827] hover:bg-[#27272a] px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            <span>{isExporting ? 'Preparing Document...' : 'Download PDF'}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Change Template Modal */}
+      {/* 2. Main Sheet Canvas Container */}
+      <div className="flex-1 flex justify-center items-start py-8 md:py-12 px-4">
+        <div className="w-full max-w-[816px] bg-white shadow-2xl rounded-sm transition-all pb-12">
+          <LivePreviewPane data={data} className="w-full" />
+        </div>
+      </div>
+
+      {/* 3. Global Single Footer */}
+      <Footer />
+
+      {/* Template Switcher Modal */}
       <ChangeTemplateModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         currentTemplateId={data.templateId}
         currentAccentColor={data.accentColor}
-        onApplyTemplate={(newTpl, newColor) => {
-          onSwitchTemplate(newTpl, newColor);
-        }}
         resumeData={data}
-      />
-
-      {/* Resume Check Panel */}
-      <ResumeCheckPanel
-        data={data}
-        isOpen={isCheckPanelOpen}
-        onClose={() => setIsCheckPanelOpen(false)}
-        onNavigateToTab={(tabId) => {
-          setIsCheckPanelOpen(false);
-          if (onNavigateToTab) onNavigateToTab(tabId);
-          else onBackToEdit();
+        onApplyTemplate={(templateId, accentColor) => {
+          onSelectTemplate(templateId, accentColor);
+          setIsTemplateModalOpen(false);
         }}
       />
     </div>

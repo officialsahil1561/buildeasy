@@ -1,297 +1,253 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { PortfolioData } from '../types';
 import TemplateRenderer from '../components/TemplateRenderer';
 
-export interface ExportResult {
+export interface PdfExportResult {
   success: boolean;
   filename: string;
-  sizeKb: number;
-  blob?: Blob;
   error?: string;
 }
 
-export async function generatePdfBlobAndDownload(data: PortfolioData): Promise<ExportResult> {
-  const firstName = data.basicInfo?.firstName || data.basicInfo?.name?.split(' ')[0] || 'Resume';
-  const lastName = data.basicInfo?.lastName || data.basicInfo?.name?.split(' ').slice(1).join(' ') || '';
-  const cleanFirst = firstName.trim().replace(/[^a-zA-Z0-9]/g, '');
-  const cleanLast = lastName.trim().replace(/[^a-zA-Z0-9]/g, '');
-  const filename = cleanFirst && cleanLast ? `${cleanFirst}_${cleanLast}_Resume.pdf` : cleanFirst ? `${cleanFirst}_Resume.pdf` : 'BuildEasy_Resume.pdf';
+/**
+ * Cleanly generates a formatted document file name based on applicant name / document name.
+ */
+export function generateResumeFilename(data: PortfolioData): string {
+  const customName = data.resumeName?.trim();
+  if (customName) {
+    return customName.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim().replace(/\s+/g, '_') + '_Resume';
+  }
 
-  const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
-  const pdfWidth = isA4 ? 210 : 215.9; // mm
-  const pdfHeight = isA4 ? 297 : 279.4; // mm
-
-  // Create offscreen container
-  const container = document.createElement('div');
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
-  container.style.top = '-9999px';
-  container.style.width = isA4 ? '794px' : '816px';
-  container.style.backgroundColor = '#ffffff';
-  document.body.appendChild(container);
-
-  const root = createRoot(container);
-  root.render(
-    <div style={{ width: '100%', backgroundColor: '#ffffff' }}>
-      <TemplateRenderer data={data} />
-    </div>
-  );
-
-  // Wait for fonts & DOM rendering
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  try {
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-    });
-
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: isA4 ? 'a4' : 'letter',
-    });
-
-    // Calculate exact canvas height per PDF page ratio
-    const pageCanvasHeight = (canvas.width * pdfHeight) / pdfWidth;
-    const totalPages = Math.max(1, Math.ceil((canvas.height - 10) / pageCanvasHeight));
-
-    for (let page = 0; page < totalPages; page++) {
-      if (page > 0) pdf.addPage();
-
-      const pageCanvas = document.createElement('canvas');
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = pageCanvasHeight;
-      const ctx = pageCanvas.getContext('2d');
-
-      if (ctx) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-
-        const sourceY = page * pageCanvasHeight;
-        const sourceH = Math.min(pageCanvasHeight, canvas.height - sourceY);
-
-        if (sourceH > 0) {
-          ctx.drawImage(
-            canvas,
-            0,
-            sourceY,
-            canvas.width,
-            sourceH,
-            0,
-            0,
-            canvas.width,
-            sourceH
-          );
-        }
-
-        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.98);
-        pdf.addImage(pageImgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      }
+  const name = (data.basicInfo?.name || '').trim();
+  if (name) {
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0]}_${parts[parts.length - 1]}_Resume`;
     }
+    return `${parts[0]}_Resume`;
+  }
 
-    const pdfBlob = pdf.output('blob');
-    const sizeKb = Math.round((pdfBlob.size / 1024) * 10) / 10;
+  return 'BuildEasy_Resume';
+}
 
-    // Trigger download
-    const url = URL.createObjectURL(pdfBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+/**
+ * Single Authoritative PDF / Print Exporter
+ * Retains 100% selectable vector typography, clickable hyperlinks, exact A4/Letter margins,
+ * and handles browser popup blockers gracefully with clean user feedback.
+ */
+export async function triggerAuthoritativePdfExport(data: PortfolioData): Promise<PdfExportResult> {
+  const filename = generateResumeFilename(data);
+  const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
+  const pageSizeRule = isA4 ? 'A4 portrait' : 'letter portrait';
 
-    // Clean up offscreen container
-    root.unmount();
-    document.body.removeChild(container);
+  // Attempt to open print helper window
+  const printWindow = window.open('', '_blank');
 
-    return {
-      success: true,
-      filename,
-      sizeKb,
-      blob: pdfBlob,
-    };
-  } catch (err: any) {
-    // Cleanup container
-    try {
-      root.unmount();
-      document.body.removeChild(container);
-    } catch (_) {}
+  if (!printWindow) {
+    // Popup blocked by browser policy: Fallback to in-page print with prompt
+    const originalTitle = document.title;
+    document.title = filename;
+
+    // Dispatch custom event to notify parent UI if needed
+    const userConfirmed = window.confirm(
+      'Your browser prevented opening the dedicated PDF export window. Would you like to use standard print preview instead?'
+    );
+
+    if (userConfirmed) {
+      window.print();
+      setTimeout(() => {
+        document.title = originalTitle;
+      }, 1000);
+      return { success: true, filename: `${filename}.pdf` };
+    }
 
     return {
       success: false,
-      filename,
-      sizeKb: 0,
-      error: err.message || 'Failed to generate PDF',
+      filename: `${filename}.pdf`,
+      error: 'Pop-up window was blocked. Please allow popups for BuildEasy to export high-fidelity PDFs.'
+    };
+  }
+
+  try {
+    printWindow.document.title = filename;
+
+    // 1. Copy all application stylesheets
+    document.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => {
+      printWindow.document.head.appendChild(node.cloneNode(true));
+    });
+
+    // 2. Add Google Fonts link for high quality typography
+    const fontLink = printWindow.document.createElement('link');
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600&display=swap';
+    printWindow.document.head.appendChild(fontLink);
+
+    // 3. Inject strict print & page-break CSS
+    const styleReset = printWindow.document.createElement('style');
+    styleReset.innerHTML = `
+      @page {
+        size: ${pageSizeRule};
+        margin: 0;
+      }
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #F3F4F6 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      #print-root {
+        width: 100% !important;
+      }
+      .print-instruction-banner {
+        background-color: #0F172A;
+        color: white;
+        padding: 12px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .print-btn-primary {
+        background-color: #2563EB;
+        color: white;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+      }
+      .print-btn-primary:hover {
+        background-color: #1D4ED8;
+      }
+      .print-btn-secondary {
+        background-color: #334155;
+        color: #E2E8F0;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+      }
+      .print-btn-secondary:hover {
+        background-color: #475569;
+      }
+      @media print {
+        body {
+          background-color: #FFFFFF !important;
+        }
+        .print-instruction-banner {
+          display: none !important;
+        }
+        #print-root {
+          padding: 0 !important;
+          margin: 0 !important;
+          background-color: #FFFFFF !important;
+        }
+        .resume-sheet-container {
+          box-shadow: none !important;
+          margin: 0 !important;
+          border: none !important;
+          width: 100% !important;
+        }
+        /* Strict semantic page-break rules */
+        section, article, .resume-entry, .resume-block {
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+        }
+        h1, h2, h3, h4, .section-heading {
+          break-after: avoid !important;
+          page-break-after: avoid !important;
+        }
+        p, li {
+          orphans: 2;
+          widows: 2;
+        }
+      }
+    `;
+    printWindow.document.head.appendChild(styleReset);
+
+    // 4. Render Layout & Banner
+    const bodyContainer = printWindow.document.createElement('div');
+    bodyContainer.className = 'min-h-screen bg-gray-100 flex flex-col';
+
+    const banner = printWindow.document.createElement('div');
+    banner.className = 'print-instruction-banner';
+    banner.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-size: 24px;">📄</span>
+        <div>
+          <strong style="display: block; font-size: 14px; color: #FFFFFF;">Ready to Save or Print Your Resume</strong>
+          <span style="font-size: 11px; color: #94A3B8; display: block; margin-top: 2px;">
+            In the print dialog, select Destination: <strong>"Save as PDF"</strong> and ensure <strong>"Background graphics"</strong> is checked.
+          </span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="print-btn-primary" onclick="window.print()">Save as PDF</button>
+        <button class="print-btn-secondary" onclick="window.close()">Close</button>
+      </div>
+    `;
+    bodyContainer.appendChild(banner);
+
+    const printRoot = printWindow.document.createElement('div');
+    printRoot.id = 'print-root';
+    printRoot.className = 'flex-1 flex justify-center items-start py-8 px-4 bg-gray-100 print:bg-white print:py-0 print:px-0';
+
+    const innerWrapper = printWindow.document.createElement('div');
+    const widthClass = isA4 ? 'w-[794px]' : 'w-[816px]';
+    innerWrapper.className = `resume-sheet-container ${widthClass} bg-white shadow-xl print:shadow-none border border-gray-200 print:border-none`;
+    printRoot.appendChild(innerWrapper);
+    bodyContainer.appendChild(printRoot);
+
+    printWindow.document.body.appendChild(bodyContainer);
+
+    // Render React TemplateRenderer into the new document
+    const root = createRoot(innerWrapper);
+    root.render(<TemplateRenderer data={data} />);
+
+    // Trigger print dialog after DOM layout and webfonts hydrate
+    setTimeout(() => {
+      try {
+        printWindow.focus();
+        printWindow.print();
+      } catch (err) {
+        console.warn('Auto-print invocation caught:', err);
+      }
+    }, 450);
+
+    return { success: true, filename: `${filename}.pdf` };
+  } catch (err: any) {
+    return {
+      success: false,
+      filename: `${filename}.pdf`,
+      error: err.message || 'Failed to export resume'
     };
   }
 }
 
-export async function triggerPdfExport(data: PortfolioData): Promise<void> {
-  const baseName = data.resumeName || data.basicInfo?.name || 'My_Resume';
-  const sanitizedName = baseName
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-  
-  const filename = sanitizedName ? `${sanitizedName}_Resume` : 'BuildEasy_Resume';
-
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    const originalTitle = document.title;
-    document.title = filename;
-    window.print();
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1000);
-    return;
-  }
-
-  printWindow.document.title = filename;
-
-  document.querySelectorAll('link, style').forEach((node) => {
-    printWindow.document.head.appendChild(node.cloneNode(true));
-  });
-
-  const fontLink = printWindow.document.createElement('link');
-  fontLink.rel = 'stylesheet';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600&display=swap';
-  printWindow.document.head.appendChild(fontLink);
-
-  const styleReset = printWindow.document.createElement('style');
-  styleReset.innerHTML = `
-    @page {
-      size: ${data.customization?.pageSize?.toLowerCase() === 'a4' ? 'A4' : 'letter'};
-      margin: 0;
-    }
-    body {
-      margin: 0 !important;
-      padding: 0 !important;
-      background-color: #F3F4F6 !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    #print-root {
-      width: 100% !important;
-      height: auto !important;
-    }
-    .print-instruction-banner {
-      background-color: #111827;
-      color: white;
-      padding: 12px 20px;
-      font-family: system-ui, -apple-system, sans-serif;
-      font-size: 13px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    .print-btn {
-      background-color: #2563EB;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .print-btn:hover {
-      background-color: #1D4ED8;
-    }
-    @media print {
-      body {
-        background-color: white !important;
-      }
-      .print-instruction-banner {
-        display: none !important;
-      }
-      #print-root {
-        padding: 0 !important;
-        margin: 0 !important;
-        background-color: white !important;
-      }
-      .resume-container-sheet {
-        box-shadow: none !important;
-        margin: 0 !important;
-        border: none !important;
-        width: 100% !important;
-      }
-      section, article, .space-y-5 > div, .space-y-4 > div, .space-y-3 > div, .space-y-2 > div {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-      h1, h2, h3, h4 {
-        break-after: avoid !important;
-        page-break-after: avoid !important;
-      }
-    }
-  `;
-  printWindow.document.head.appendChild(styleReset);
-
-  const bodyContainer = printWindow.document.createElement('div');
-  bodyContainer.className = 'min-h-screen bg-gray-100 flex flex-col';
-
-  const banner = printWindow.document.createElement('div');
-  banner.className = 'print-instruction-banner';
-  banner.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <span style="font-size: 20px;">📄</span>
-      <div>
-        <strong style="display: block; font-size: 14px;">Your PDF Resume is Ready</strong>
-        <span style="font-size: 11px; color: #9CA3AF; display: block; margin-top: 2px;">
-          Choose <strong>"Save as PDF"</strong> as Destination and ensure <strong>"Background graphics"</strong> is checked.
-        </span>
-      </div>
-    </div>
-    <div style="display: flex; gap: 8px;">
-      <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
-      <button class="print-btn" style="background-color: #374151;" onclick="window.close()">Close Tab</button>
-    </div>
-  `;
-  bodyContainer.appendChild(banner);
-
-  const printRoot = printWindow.document.createElement('div');
-  printRoot.id = 'print-root';
-  printRoot.className = 'flex-1 flex justify-center items-start py-8 px-4 bg-gray-100 print:bg-white print:py-0 print:px-0';
-
-  const innerWrapper = printWindow.document.createElement('div');
-  const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
-  const widthClass = isA4 ? 'w-[794px]' : 'w-[816px]';
-  innerWrapper.className = `resume-container-sheet ${widthClass} bg-white shadow-xl print:shadow-none border border-gray-200 print:border-none`;
-  printRoot.appendChild(innerWrapper);
-  bodyContainer.appendChild(printRoot);
-
-  printWindow.document.body.appendChild(bodyContainer);
-
-  const root = createRoot(innerWrapper);
-  root.render(<TemplateRenderer data={data} />);
-
-  setTimeout(() => {
-    printWindow.print();
-  }, 450);
-}
-
+/**
+ * Downloads a complete JSON backup of the user's resume data.
+ */
 export function downloadBackupJson(data: PortfolioData): void {
-  const nameSlug = (data.resumeName || data.basicInfo?.name || 'resume').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+  const filename = generateResumeFilename(data);
   const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${nameSlug}-resume-data.json`;
+  a.download = `${filename}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

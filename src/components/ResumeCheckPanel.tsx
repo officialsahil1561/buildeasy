@@ -15,13 +15,12 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
   const [report, setReport] = useState<CheckReport | null>(null);
   const [activeTab, setActiveTab] = useState<'checks' | 'jd'>('checks');
   const [jdText, setJdText] = useState('');
-  const [jdMatch, setJdMatch] = useState<{ matched: string[]; missing: string[]; matchPercentage?: number; disclaimer?: string } | null>(null);
+  const [jdMatch, setJdMatch] = useState<{ matchedKeywords: string[]; missingKeywords: string[]; matchPercentage?: number; disclaimer?: string } | null>(null);
   const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setIsChecking(true);
-      // Simulate a small delay so it doesn't feel instantaneous/fake, but not too long.
       const timer = setTimeout(() => {
         setReport(checkResume(data));
         setIsChecking(false);
@@ -41,7 +40,13 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
 
   const handleJdAnalyze = () => {
     if (!jdText.trim()) return;
-    setJdMatch(matchJobDescription(data, jdText));
+    const res = matchJobDescription(data, jdText);
+    setJdMatch({
+      matchedKeywords: res.matchedKeywords,
+      missingKeywords: res.missingKeywords,
+      matchPercentage: res.matchPercentage,
+      disclaimer: res.disclaimer,
+    });
   };
 
   if (!isOpen) return null;
@@ -56,7 +61,7 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
             <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
             <h2 className="text-sm font-bold text-[#111827]">Resume Check</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 text-[#6B7280] hover:bg-[#E5E7EB] rounded-md transition-colors">
+          <button onClick={onClose} className="p-1.5 text-[#6B7280] hover:bg-[#E5E7EB] rounded-md transition-colors cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -65,7 +70,7 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
         <div className="flex px-4 border-b border-[#E5E7EB] shrink-0">
           <button
             onClick={() => setActiveTab('checks')}
-            className={`flex-1 py-3 text-xs font-semibold text-center border-b-2 transition-colors ${
+            className={`flex-1 py-3 text-xs font-semibold text-center border-b-2 transition-colors cursor-pointer ${
               activeTab === 'checks' ? 'border-[#2563EB] text-[#2563EB]' : 'border-transparent text-[#6B7280] hover:text-[#111827]'
             }`}
           >
@@ -73,7 +78,7 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
           </button>
           <button
             onClick={() => setActiveTab('jd')}
-            className={`flex-1 py-3 text-xs font-semibold text-center border-b-2 transition-colors ${
+            className={`flex-1 py-3 text-xs font-semibold text-center border-b-2 transition-colors cursor-pointer ${
               activeTab === 'jd' ? 'border-[#2563EB] text-[#2563EB]' : 'border-transparent text-[#6B7280] hover:text-[#111827]'
             }`}
           >
@@ -98,53 +103,55 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
                   {report.overallStatus === 'Good' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
                   {report.overallStatus === 'Needs improvement' && <AlertTriangle className="w-5 h-5 text-amber-500" />}
                   {report.overallStatus === 'Incomplete' && <AlertCircle className="w-5 h-5 text-rose-600" />}
-                  <h3 className={`text-xl font-bold ${
-                    report.overallStatus === 'Excellent' ? 'text-emerald-700' :
-                    report.overallStatus === 'Good' ? 'text-emerald-600' :
-                    report.overallStatus === 'Needs improvement' ? 'text-amber-600' :
-                    'text-rose-600'
-                  }`}>
-                    {report.overallStatus}
-                  </h3>
+                  <span className="text-sm font-bold text-[#111827]">{report.overallStatus}</span>
                 </div>
-                <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden mt-3">
+                <div className="w-full bg-[#E5E7EB] h-2 rounded-full overflow-hidden mt-3">
                   <div 
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      report.overallStatus === 'Excellent' ? 'bg-emerald-500' :
-                      report.overallStatus === 'Good' ? 'bg-emerald-400' :
-                      report.overallStatus === 'Needs improvement' ? 'bg-amber-400' :
-                      'bg-rose-500'
+                    className={`h-full transition-all duration-500 ${
+                      report.overallStatus === 'Excellent' ? 'bg-emerald-600' :
+                      report.overallStatus === 'Good' ? 'bg-emerald-500' :
+                      report.overallStatus === 'Needs improvement' ? 'bg-amber-500' : 'bg-rose-500'
                     }`}
-                    style={{ width: `${(report.passedCount / report.totalCount) * 100}%` }}
-                  ></div>
+                    style={{ width: `${Math.round((report.passedCount / Math.max(1, report.totalCount)) * 100)}%` }}
+                  />
                 </div>
-                <p className="text-xs text-[#4B5563] pt-1">
-                  <span className="font-bold text-[#111827]">{report.passedCount}</span> of {report.totalCount} checks passed
+                <p className="text-[11px] text-[#6B7280]">
+                  {report.passedCount} of {report.totalCount} quality checks passed
                 </p>
               </div>
 
-              {/* Actionable List */}
-              <div className="space-y-3">
+              {/* Check list */}
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-[#111827] uppercase tracking-wider">All Checks</p>
                 {report.checks.map((check) => (
-                  <div key={check.id} className="flex gap-3 items-start p-3 rounded-lg border border-[#E5E7EB] bg-white shadow-sm">
-                    <div className="shrink-0 mt-0.5">
-                      {check.status === 'PASS' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                      {check.status === 'WARNING' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
-                      {check.status === 'ERROR' && <AlertCircle className="w-4 h-4 text-rose-500" />}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-xs text-[#111827] font-medium leading-snug">{check.message}</p>
-                      {check.status !== 'PASS' && check.tabTarget && (
-                        <button 
-                          onClick={() => {
-                            onNavigateToTab(check.tabTarget as TabType);
-                            onClose();
-                          }}
-                          className="text-[11px] font-bold text-[#2563EB] hover:underline flex items-center gap-1 mt-1"
-                        >
-                          {check.status === 'ERROR' ? 'Fix issue' : 'Review'} <ArrowRight className="w-3 h-3" />
-                        </button>
-                      )}
+                  <div 
+                    key={check.id}
+                    className={`p-3 rounded-lg border text-xs flex items-start gap-2.5 transition-colors ${
+                      check.status === 'PASS' ? 'border-emerald-100 bg-emerald-50/40 text-[#111827]' :
+                      check.status === 'WARNING' ? 'border-amber-100 bg-amber-50/50 text-[#111827]' :
+                      'border-rose-100 bg-rose-50/50 text-[#111827]'
+                    }`}
+                  >
+                    {check.status === 'PASS' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />}
+                    {check.status === 'WARNING' && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />}
+                    {check.status === 'ERROR' && <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />}
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-[10px] uppercase tracking-wider text-[#6B7280]">{check.category}</span>
+                        {check.tabTarget && (
+                          <button
+                            onClick={() => {
+                              onNavigateToTab(check.tabTarget as TabType);
+                              onClose();
+                            }}
+                            className="text-[10px] font-bold text-[#2563EB] hover:underline flex items-center gap-0.5"
+                          >
+                            Fix <ArrowRight className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-xs text-[#374151]">{check.message}</p>
                     </div>
                   </div>
                 ))}
@@ -153,18 +160,6 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
             </div>
           ) : activeTab === 'jd' ? (
             <div className="space-y-4">
-              {!jdMatch && (
-                <div className="flex flex-col items-center justify-center p-5 bg-[#F9FAFB] rounded-xl border border-dashed border-[#E5E7EB] mb-4 text-center">
-                  <div className="w-10 h-10 rounded-full bg-[#111827] text-white flex items-center justify-center mb-2">
-                    <Briefcase className="w-5 h-5" />
-                  </div>
-                  <p className="text-xs font-bold text-[#111827]">Job Keyword Matcher</p>
-                  <p className="text-[11px] text-[#6B7280] max-w-[240px] mt-1 leading-relaxed">
-                    Paste a target job description to analyze keyword coverage and match percentage.
-                  </p>
-                </div>
-              )}
-
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
                   <Briefcase className="w-3.5 h-3.5 text-[#6B7280]" /> Job Description
@@ -196,16 +191,16 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
                     <div className={`px-3 py-1 rounded-full text-xs font-bold ${
                       (jdMatch.matchPercentage || 0) >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                     }`}>
-                      {jdMatch.matched.length} / {jdMatch.matched.length + jdMatch.missing.length} keywords
+                      {jdMatch.matchedKeywords.length} / {jdMatch.matchedKeywords.length + jdMatch.missingKeywords.length} keywords
                     </div>
                   </div>
 
                   <div>
                     <h4 className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> MATCHED KEYWORDS ({jdMatch.matched.length})
+                      <CheckCircle2 className="w-3.5 h-3.5" /> MATCHED KEYWORDS ({jdMatch.matchedKeywords.length})
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
-                      {jdMatch.matched.length > 0 ? jdMatch.matched.map((kw, i) => (
+                      {jdMatch.matchedKeywords.length > 0 ? jdMatch.matchedKeywords.map((kw, i) => (
                         <span key={i} className="px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[10px] font-bold">
                           {kw}
                         </span>
@@ -215,10 +210,10 @@ export default function ResumeCheckPanel({ data, isOpen, onClose, onNavigateToTa
 
                   <div>
                     <h4 className="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5" /> MISSING KEYWORDS ({jdMatch.missing.length})
+                      <AlertTriangle className="w-3.5 h-3.5" /> MISSING KEYWORDS ({jdMatch.missingKeywords.length})
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
-                      {jdMatch.missing.length > 0 ? jdMatch.missing.map((kw, i) => (
+                      {jdMatch.missingKeywords.length > 0 ? jdMatch.missingKeywords.map((kw, i) => (
                         <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[10px] font-bold">
                           {kw}
                         </span>

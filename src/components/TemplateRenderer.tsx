@@ -1,5 +1,5 @@
 import React from 'react';
-import { PortfolioData } from '../types';
+import { PortfolioData, CustomizationSettings } from '../types';
 import TemplateMinimal from './TemplateMinimal';
 import TemplateExecutive from './TemplateExecutive';
 import TemplateModern from './TemplateModern';
@@ -7,9 +7,17 @@ import TemplateClassic from './TemplateClassic';
 import TemplateAcademic from './TemplateAcademic';
 import TemplateCompact from './TemplateCompact';
 import { sanitizeUrl } from '../lib/utils';
+export { ResumeSection, EntryHeader, EntryBullets } from './common/ResumePrimitives';
 
 interface TemplateRendererProps {
   data: PortfolioData;
+}
+
+export function getSectionStyle(sectionId: string, customization?: CustomizationSettings): React.CSSProperties {
+  if (customization?.hiddenSections?.includes(sectionId)) {
+    return { display: 'none' };
+  }
+  return {};
 }
 
 function sanitizePortfolioData(data: PortfolioData): PortfolioData {
@@ -54,4 +62,3 @@ export default function TemplateRenderer({ data }: TemplateRendererProps) {
       return <TemplateMinimal data={sanitizedData} />;
   }
 }
-
