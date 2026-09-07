@@ -42,7 +42,7 @@ export default function ResumeTipsIndex() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const canonicalUrl = 'https://buildeasy.app/resume-tips';
+  const canonicalUrl = 'https://buildeasy-resume.github.io/resume-tips';
 
   const filteredArticles = useMemo(() => {
     return searchArticles(searchQuery, selectedCategory);
@@ -56,7 +56,7 @@ export default function ResumeTipsIndex() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://buildeasy.app/',
+        item: 'https://buildeasy-resume.github.io/',
       },
       {
         '@type': 'ListItem',

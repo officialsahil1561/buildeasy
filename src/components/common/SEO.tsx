@@ -23,14 +23,14 @@ export default function SEO({
   description,
   canonicalUrl,
   ogType = 'website',
-  ogImage = 'https://buildeasy.app/apple-touch-icon.png',
+  ogImage = 'https://buildeasy-resume.github.io/apple-touch-icon.png',
   keywords,
   noindex = false,
   breadcrumbs,
   structuredData,
 }: SEOProps) {
   const fullCanonicalUrl = canonicalUrl
-    ? (canonicalUrl.startsWith('http') ? canonicalUrl : `https://buildeasy.app${canonicalUrl.startsWith('/') ? '' : '/'}${canonicalUrl}`)
+    ? (canonicalUrl.startsWith('http') ? canonicalUrl : `https://buildeasy-resume.github.io${canonicalUrl.startsWith('/') ? '' : '/'}${canonicalUrl}`)
     : undefined;
 
   const keywordsString = Array.isArray(keywords) ? keywords.join(', ') : keywords;
@@ -43,7 +43,7 @@ export default function SEO({
       '@type': 'ListItem',
       position: idx + 1,
       name: crumb.name,
-      item: crumb.url.startsWith('http') ? crumb.url : `https://buildeasy.app${crumb.url.startsWith('/') ? '' : '/'}${crumb.url}`,
+      item: crumb.url.startsWith('http') ? crumb.url : `https://buildeasy-resume.github.io${crumb.url.startsWith('/') ? '' : '/'}${crumb.url}`,
     })),
   } : null;
 

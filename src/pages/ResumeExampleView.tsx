@@ -53,16 +53,16 @@ export default function ResumeExampleView() {
     author: {
       '@type': 'Organization',
       name: 'BuildEasy Editorial Team',
-      url: 'https://buildeasy.app',
+      url: 'https://buildeasy-resume.github.io',
     },
     publisher: {
       '@type': 'Organization',
       name: 'BuildEasy',
-      url: 'https://buildeasy.app',
+      url: 'https://buildeasy-resume.github.io',
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://buildeasy.app${canonicalUrl}`,
+      '@id': `https://buildeasy-resume.github.io${canonicalUrl}`,
     },
   };
 

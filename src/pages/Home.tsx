@@ -26,7 +26,7 @@ export default function Home() {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'BuildEasy',
-      url: 'https://buildeasy.app/',
+      url: 'https://buildeasy-resume.github.io/',
       description: 'Free, privacy-focused online resume builder with professional editorial templates and instant PDF export.',
     },
     {

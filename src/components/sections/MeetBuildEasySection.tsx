@@ -31,7 +31,7 @@ export default function MeetBuildEasySection() {
               <div className="w-3 h-3 rounded-full bg-gray-200"></div>
             </div>
             <div className="bg-[#F3F4F6] rounded-md text-[11px] text-gray-500 px-6 py-1.5 font-medium tracking-wide">
-              buildeasy.app/builder
+              buildeasy-resume.github.io/builder
             </div>
             <div className="w-16"></div> {/* Spacer for symmetry */}
           </div>

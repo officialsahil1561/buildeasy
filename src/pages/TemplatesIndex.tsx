@@ -86,7 +86,7 @@ export default function TemplatesIndex() {
       position: idx + 1,
       name: tmpl.name,
       description: tmpl.description,
-      url: `https://buildeasy.app/templates/${tmpl.id}`,
+      url: `https://buildeasy-resume.github.io/templates/${tmpl.id}`,
     })),
   };
 

@@ -25,7 +25,7 @@ export default function ArticleView() {
     return <Navigate to="/resume-tips" replace />;
   }
 
-  const canonicalUrl = `https://buildeasy.app/resume-tips/${article.slug}`;
+  const canonicalUrl = `https://buildeasy-resume.github.io/resume-tips/${article.slug}`;
   const relatedArticles = getRelatedArticles(article.slug, 3);
   const { prevArticle, nextArticle } = getPrevAndNextArticles(article.slug);
 
@@ -39,15 +39,15 @@ export default function ArticleView() {
     author: {
       '@type': 'Organization',
       name: 'BuildEasy Editorial Team',
-      url: 'https://buildeasy.app',
+      url: 'https://buildeasy-resume.github.io',
     },
     publisher: {
       '@type': 'Organization',
       name: 'BuildEasy',
-      url: 'https://buildeasy.app',
+      url: 'https://buildeasy-resume.github.io',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://buildeasy.app/favicon.ico',
+        url: 'https://buildeasy-resume.github.io/favicon.ico',
       },
     },
     mainEntityOfPage: {
@@ -64,13 +64,13 @@ export default function ArticleView() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://buildeasy.app/',
+        item: 'https://buildeasy-resume.github.io/',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Resume Tips',
-        item: 'https://buildeasy.app/resume-tips',
+        item: 'https://buildeasy-resume.github.io/resume-tips',
       },
       {
         '@type': 'ListItem',

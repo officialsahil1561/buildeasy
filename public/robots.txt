@@ -20,4 +20,4 @@ Allow: /terms
 Disallow: /builder
 Disallow: /builder/*
 
-Sitemap: https://buildeasy.app/sitemap.xml
+Sitemap: https://buildeasy-resume.github.io/sitemap.xml
