@@ -12,7 +12,7 @@ export default function BuilderExportPage() {
     <div className="min-h-screen flex flex-col bg-[#F5F7FA]">
       <SEO
         title="Your Resume is Ready | BuildEasy"
-        description="Download your vector PDF resume and save JSON backups."
+        description="Download your print-ready PDF resume and save JSON backups."
         canonicalUrl="/builder/export"
       />
       <ScreenExportConfirmation

@@ -20,7 +20,6 @@ import {
   Paintbrush,
   HelpCircle
 } from 'lucide-react';
-import { triggerAuthoritativePdfExport } from '../../lib/exporter';
 
 interface ScreenBuilderProps {
   data: PortfolioData;

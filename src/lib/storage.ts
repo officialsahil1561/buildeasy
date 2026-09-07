@@ -9,11 +9,40 @@ export const STORAGE_KEYS = {
   SCHEMA_VERSION: 'buildeasy_schema_version',
   SCREEN: 'buildeasy_current_screen',
   TAB: 'buildeasy_active_builder_tab',
+  PURCHASES: 'buildeasy_resume_purchases',
 };
 
 const STORAGE_KEY = STORAGE_KEYS.RESUME_DATA;
 const VERSION_KEY = STORAGE_KEYS.SCHEMA_VERSION;
 const CURRENT_SCHEMA_VERSION = 2;
+
+/**
+ * Payment / Purchase Helpers
+ */
+export function markResumeAsPaid(resumeId: string): void {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PURCHASES);
+    const purchases = raw ? JSON.parse(raw) : [];
+    if (!purchases.includes(resumeId)) {
+      purchases.push(resumeId);
+      localStorage.setItem(STORAGE_KEYS.PURCHASES, JSON.stringify(purchases));
+    }
+  } catch (error) {
+    console.error('Failed to mark resume as paid:', error);
+  }
+}
+
+export function isResumePaid(resumeId: string): boolean {
+  if (!resumeId) return false;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PURCHASES);
+    if (!raw) return false;
+    const purchases = JSON.parse(raw);
+    return Array.isArray(purchases) && purchases.includes(resumeId);
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Generate cryptographically random ID with fallback
@@ -52,9 +81,10 @@ export function normalizePortfolioData(raw: unknown): PortfolioData {
     : 'minimal';
 
   return {
+    id: typeof data.id === 'string' && data.id.trim() ? data.id : createId('resume'),
     templateId,
-    accentColor: typeof data.accentColor === 'string' ? data.accentColor : '#2563eb',
-    resumeName: sanitizeText(data.resumeName || 'My Resume'),
+    accentColor: typeof data.accentColor === 'string' ? data.accentColor : '#111827',
+    resumeName: sanitizeText(data.resumeName || 'Untitled Resume'),
     basicInfo,
     links: Array.isArray(data.links)
       ? data.links.map(l => ({
@@ -161,14 +191,20 @@ export function normalizePortfolioData(raw: unknown): PortfolioData {
         }))
       : [],
     customization: {
-      pageSize: data.customization?.pageSize || 'letter',
-      font: data.customization?.font || 'inter',
-      spacing: data.customization?.spacing || 'balanced',
+      pageSize: (data.customization?.pageSize === 'a4' || data.customization?.pageSize === 'letter') 
+        ? data.customization.pageSize 
+        : 'letter',
+      font: ['inter', 'arial', 'helvetica', 'georgia', 'times'].includes(data.customization?.font as string)
+        ? (data.customization?.font as PortfolioData['customization']['font'])
+        : 'inter',
+      spacing: ['compact', 'balanced', 'comfortable'].includes(data.customization?.spacing as string)
+        ? (data.customization?.spacing as PortfolioData['customization']['spacing'])
+        : 'balanced',
       sectionOrder: Array.isArray(data.customization?.sectionOrder)
-        ? data.customization.sectionOrder
-        : INITIAL_PORTFOLIO_DATA.customization?.sectionOrder || ['experience', 'education', 'projects', 'skills'],
+        ? data.customization.sectionOrder.filter(s => typeof s === 'string')
+        : INITIAL_PORTFOLIO_DATA.customization?.sectionOrder || ['summary', 'experience', 'education', 'projects', 'skills'],
       hiddenSections: Array.isArray(data.customization?.hiddenSections)
-        ? data.customization.hiddenSections
+        ? data.customization.hiddenSections.filter(s => typeof s === 'string')
         : [],
     },
   };
@@ -225,13 +261,13 @@ export function loadPersistedResume(): PortfolioData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      return INITIAL_PORTFOLIO_DATA;
+      return createBlankResume();
     }
     const parsed = JSON.parse(raw);
     return normalizePortfolioData(parsed);
   } catch (error) {
     console.warn('Error reading from localStorage, returning default resume data:', error);
-    return INITIAL_PORTFOLIO_DATA;
+    return createBlankResume();
   }
 }
 
@@ -247,7 +283,7 @@ export function resetPortfolio(): PortfolioData {
   } catch {
     // Ignore
   }
-  return INITIAL_PORTFOLIO_DATA;
+  return createBlankResume();
 }
 
 /**

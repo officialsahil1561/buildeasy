@@ -13,7 +13,7 @@ export default function ResumeBuilder() {
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="Free Resume Builder — Craft Professional Resumes Online | BuildEasy"
-        description="BuildEasy is a free, fast, and elegant resume builder. Edit in compact sections, preview live side-by-side, customize fonts & spacing, and export high-res vector PDFs."
+        description="BuildEasy is a free, fast, and elegant resume builder. Edit in compact sections, preview live side-by-side, customize fonts & spacing, and export print-ready PDFs."
         canonicalUrl="/resume-builder"
       />
 
@@ -103,9 +103,9 @@ export default function ResumeBuilder() {
 
               <div className="p-6 border border-[#E5E7EB] rounded-xl bg-[#F9FAFB]">
                 <ArrowRight className="w-8 h-8 text-[#111827] mb-4" />
-                <h3 className="font-bold text-lg mb-2">High-Res Vector PDF</h3>
+                <h3 className="font-bold text-lg mb-2">Print-Ready Text PDF</h3>
                 <p className="text-sm text-[#4B5563] leading-relaxed">
-                  Export crisp, perfectly aligned vector PDFs with working hyperlinks and exact print margins.
+                  Export crisp, perfectly aligned PDFs with selectable text and exact print margins.
                 </p>
               </div>
             </div>

@@ -7,14 +7,18 @@ export interface FormFieldProps {
   recommended?: boolean;
   error?: string;
   tooltip?: string;
+  htmlFor?: string;
   children: React.ReactNode;
 }
 
-export function FormField({ label, required, recommended, error, tooltip, children }: FormFieldProps) {
+export function FormField({ label, required, recommended, error, tooltip, htmlFor, children }: FormFieldProps) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-[#374151] flex items-center gap-1">
+        <label 
+          htmlFor={htmlFor}
+          className="text-xs font-bold text-[#374151] flex items-center gap-1 cursor-pointer"
+        >
           {label}
           {required && <span className="text-rose-500 font-black">*</span>}
           {recommended && <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.2 rounded">Recommended</span>}

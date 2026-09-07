@@ -13,11 +13,11 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     question: 'Is BuildEasy free to use?',
-    answer: 'Yes! BuildEasy is completely free to use. You can select any template, add your content, customize design options, and download your high-resolution vector PDF without hidden fees or account paywalls.'
+    answer: 'Yes! BuildEasy is completely free to use. You can select any template, add your content, customize design options, and download your print-ready PDF with selectable text without hidden fees or account paywalls.'
   },
   {
     question: 'Can I export my resume as a PDF?',
-    answer: 'Yes. BuildEasy exports print-ready vector PDF files. Hyperlinks, text selections, and precise layout margins are preserved during export.'
+    answer: 'Yes. BuildEasy exports print-ready PDF files with selectable text. Text selections, ATS-compatible reading order, and precise layout margins are preserved during browser print-to-PDF export.'
   },
   {
     question: 'Does BuildEasy support both A4 and US Letter paper sizes?',
@@ -115,7 +115,7 @@ export default function FAQ() {
             {/* Bottom CTA */}
             <div className="mt-12 p-8 bg-[#111111] text-white rounded-2xl text-center flex flex-col items-center">
               <h3 className="font-serif text-2xl mb-2">Ready to create your resume?</h3>
-              <p className="text-xs text-gray-300 max-w-md mb-6">Start building now with live preview and free vector PDF export.</p>
+              <p className="text-xs text-gray-300 max-w-md mb-6">Start building now with live preview and print-ready PDF export.</p>
               <Link
                 to="/builder"
                 className="px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2 text-sm"

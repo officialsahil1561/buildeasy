@@ -10,9 +10,10 @@ interface DesignTabProps {
 
 const FONTS: { id: FontId; name: string; fontClass: string }[] = [
   { id: 'inter', name: 'Inter (Sans-serif)', fontClass: 'font-sans' },
-  { id: 'helvetica', name: 'Helvetica / Arial', fontClass: 'font-sans' },
+  { id: 'helvetica', name: 'Helvetica Neue', fontClass: 'font-sans' },
+  { id: 'arial', name: 'Arial (Standard)', fontClass: 'font-sans' },
   { id: 'georgia', name: 'Georgia (Editorial Serif)', fontClass: 'font-serif' },
-  { id: 'times', name: 'Times New Roman (Academic)', fontClass: 'font-serif' },
+  { id: 'times', name: 'Times New Roman', fontClass: 'font-serif' },
 ];
 
 const ACCENT_COLORS = [

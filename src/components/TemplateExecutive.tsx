@@ -2,6 +2,7 @@ import React from 'react';
 import { PortfolioData } from '../types';
 import { getSectionStyle, ResumeSection, EntryHeader, EntryBullets, renderSectionsByOrder } from './TemplateRenderer';
 import { getNormalizedResumeContact } from '../lib/template-helpers';
+import ResumePage from './resume/ResumePage';
 
 interface TemplateProps {
   data: PortfolioData;
@@ -32,27 +33,27 @@ export default function TemplateExecutive({ data }: TemplateProps) {
 
   const sectionRenderers = {
     summary: () => displaySummary ? (
-      <ResumeSection title="Executive Summary" style={getSectionStyle('summary', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
-        <p className="text-[10pt] font-serif text-gray-800 leading-relaxed pt-1">{displaySummary}</p>
+      <ResumeSection title="Executive Summary" style={getSectionStyle('summary', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
+        <p className="text-[10pt] text-gray-800 leading-relaxed pt-1">{displaySummary}</p>
       </ResumeSection>
     ) : null,
     experience: () => experience.length > 0 ? (
-      <ResumeSection title="Professional Experience" style={getSectionStyle('experience', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
+      <ResumeSection title="Professional Experience" style={getSectionStyle('experience', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1">
         <div className="space-y-4 pt-1">
           {experience.map((exp) => (
-            <div key={exp.id} className="space-y-1">
+            <div key={exp.id} className="resume-entry space-y-1">
               <EntryHeader
                 left={
                   <div>
-                    <strong className="text-[10.5pt] text-gray-900 font-sans">{exp.role}</strong>
-                    <span className="text-[10.5pt] text-gray-800 font-serif italic"> — {exp.org}</span>
-                    {exp.location && <span className="text-gray-500 text-[9.5pt] ml-2 font-normal font-sans">({exp.location})</span>}
+                    <strong className="text-[10.5pt] text-gray-900">{exp.role}</strong>
+                    <span className="text-[10.5pt] text-gray-800 italic"> — {exp.org}</span>
+                    {exp.location && <span className="text-gray-500 text-[9.5pt] ml-2 font-normal">({exp.location})</span>}
                   </div>
                 }
                 right={`${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`}
-                rightClassName="text-[9.5pt] text-gray-600 font-medium font-sans shrink-0 ml-2"
+                rightClassName="text-[9.5pt] text-gray-600 font-medium shrink-0 ml-2"
               />
-              {exp.bullets.length > 0 && <EntryBullets bullets={exp.bullets} className="list-disc list-outside ml-5 space-y-1.5 text-[10pt] font-serif text-gray-800 leading-relaxed mt-1" />}
+              {(exp.bullets?.length ?? 0) > 0 && <EntryBullets bullets={exp.bullets} className="resume-bullets space-y-1.5 text-[10pt] text-gray-800 leading-relaxed mt-1" />}
             </div>
           ))}
         </div>
@@ -62,7 +63,7 @@ export default function TemplateExecutive({ data }: TemplateProps) {
       <ResumeSection title="Education & Credentials" style={getSectionStyle('education', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
         <div className="space-y-3 pt-1">
           {education.map((edu) => (
-            <div key={edu.id} className="space-y-0.5">
+            <div key={edu.id} className="resume-entry space-y-0.5">
               <EntryHeader
                 left={
                   <div>
@@ -85,7 +86,7 @@ export default function TemplateExecutive({ data }: TemplateProps) {
       <ResumeSection title="Key Initiatives & Projects" style={getSectionStyle('projects', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
         <div className="space-y-3 pt-1">
           {projects.map((proj) => (
-            <div key={proj.id} className="space-y-1">
+            <div key={proj.id} className="resume-entry space-y-1">
               <EntryHeader
                 left={
                   <div className="flex items-center gap-2">
@@ -109,7 +110,7 @@ export default function TemplateExecutive({ data }: TemplateProps) {
                   Core Technologies: {proj.tech.join(', ')}
                 </p>
               )}
-              {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="list-disc list-outside ml-5 space-y-1 text-[9.5pt] font-serif text-gray-800 leading-relaxed mt-1" />}
+              {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="resume-bullets space-y-1 text-[9.5pt] font-serif text-gray-800 leading-relaxed mt-1" />}
             </div>
           ))}
         </div>
@@ -139,7 +140,7 @@ export default function TemplateExecutive({ data }: TemplateProps) {
           <ResumeSection title="Certifications" style={getSectionStyle('certifications', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
             <div className="space-y-2 pt-1">
               {data.certifications.map((cert) => (
-                <div key={cert.id} className="space-y-0.5 text-[10pt] text-gray-800 font-serif">
+                <div key={cert.id} className="resume-entry space-y-0.5 text-[10pt] text-gray-800 font-serif">
                   <EntryHeader left={<strong className="text-gray-900 font-sans">{cert.title}</strong>} right={cert.date} rightClassName="text-[9.5pt] text-gray-600 font-medium font-sans shrink-0 ml-2" />
                   <div className="text-gray-700 text-[9.5pt] italic">{cert.subtitle}</div>
                   {cert.description && <p className="text-gray-600 text-[9.5pt] pt-0.5">{cert.description}</p>}
@@ -153,7 +154,7 @@ export default function TemplateExecutive({ data }: TemplateProps) {
           <ResumeSection title="Honors & Board Recognitions" style={getSectionStyle('achievements', data.customization)} titleClassName="text-[11.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-1" className="font-sans">
             <div className="space-y-2 pt-1">
               {achievements.map((ach) => (
-                <div key={ach.id} className="flex justify-between text-[10pt] text-gray-800 font-serif">
+                <div key={ach.id} className="resume-entry flex justify-between text-[10pt] text-gray-800 font-serif">
                   <span>
                     <strong className="text-gray-900 font-sans">{ach.title}</strong> — {ach.issuer}
                   </span>
@@ -198,9 +199,14 @@ export default function TemplateExecutive({ data }: TemplateProps) {
   };
 
   return (
-    <div className="font-serif text-gray-900 leading-normal">
+    <ResumePage 
+      pageSize={data.customization?.pageSize} 
+      spacing={data.customization?.spacing}
+      accentColor={data.accentColor}
+      font={data.customization?.font}
+    >
       {/* Header */}
-      <header className="border-b-2 border-gray-900 pb-4 mb-5 text-center font-sans">
+      <header className="border-b-2 border-gray-900 pb-4 mb-2 text-center resume-header">
         <h1 className="text-[24pt] font-black tracking-tight text-gray-900 uppercase">
           {basicInfo.name || 'YOUR NAME'}
         </h1>
@@ -246,6 +252,6 @@ export default function TemplateExecutive({ data }: TemplateProps) {
       <div className="flex flex-col gap-5">
         {renderSectionsByOrder(data, sectionRenderers)}
       </div>
-    </div>
+    </ResumePage>
   );
 }

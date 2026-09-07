@@ -2,6 +2,7 @@ import React from 'react';
 import { PortfolioData } from '../types';
 import { getSectionStyle, ResumeSection, EntryHeader, EntryBullets, renderSectionsByOrder } from './TemplateRenderer';
 import { getNormalizedResumeContact } from '../lib/template-helpers';
+import ResumePage from './resume/ResumePage';
 
 interface TemplateProps {
   data: PortfolioData;
@@ -40,12 +41,12 @@ export default function TemplateAcademic({ data }: TemplateProps) {
       <ResumeSection title="EDUCATION" style={getSectionStyle('education', data.customization)} titleClassName="text-[11pt] font-bold uppercase tracking-wider text-gray-900 border-b-2 border-gray-900 pb-1">
         <div className="space-y-3.5 pt-1">
           {education.map((edu) => (
-            <div key={edu.id} className="space-y-0.5">
+            <div key={edu.id} className="resume-entry space-y-0.5">
               <EntryHeader
                 left={
                   <div>
                     <strong className="text-[10.5pt] text-gray-900">{edu.institution}</strong>
-                    {edu.degree && <span className="text-[10pt] text-gray-800 font-serif"> — {edu.degree}</span>}
+                    {edu.degree && <span className="text-[10pt] text-gray-800"> — {edu.degree}</span>}
                     {edu.field && <span className="text-[10pt] text-gray-700 italic">, {edu.field}</span>}
                   </div>
                 }
@@ -63,7 +64,7 @@ export default function TemplateAcademic({ data }: TemplateProps) {
       <ResumeSection title="ACADEMIC & PROFESSIONAL APPOINTMENTS" style={getSectionStyle('experience', data.customization)} titleClassName="text-[11pt] font-bold uppercase tracking-wider text-gray-900 border-b-2 border-gray-900 pb-1">
         <div className="space-y-4 pt-1">
           {experience.map((exp) => (
-            <div key={exp.id} className="space-y-1">
+            <div key={exp.id} className="resume-entry space-y-1">
               <EntryHeader
                 left={
                   <div>
@@ -75,7 +76,7 @@ export default function TemplateAcademic({ data }: TemplateProps) {
                 right={`${exp.startDate} – ${exp.current ? 'Present' : exp.endDate}`}
                 rightClassName="text-[9.5pt] text-gray-600 font-sans shrink-0 ml-2"
               />
-              {exp.bullets.length > 0 && <EntryBullets bullets={exp.bullets} className="list-disc list-outside ml-5 space-y-1 text-[9.5pt] text-gray-800 leading-relaxed mt-1" />}
+              {(exp.bullets?.length ?? 0) > 0 && <EntryBullets bullets={exp.bullets} className="resume-bullets space-y-1 text-[9.5pt] text-gray-800 leading-relaxed mt-1" />}
             </div>
           ))}
         </div>
@@ -85,7 +86,7 @@ export default function TemplateAcademic({ data }: TemplateProps) {
       <ResumeSection title="PUBLICATIONS & PREPRINTS" style={getSectionStyle('publications', data.customization)} titleClassName="text-[11pt] font-bold uppercase tracking-wider text-gray-900 border-b-2 border-gray-900 pb-1">
         <div className="space-y-2.5 pt-1">
           {data.publications.map((pub) => (
-            <div key={pub.id} className="space-y-0.5 text-[10pt] text-gray-800">
+            <div key={pub.id} className="resume-entry space-y-0.5 text-[10pt] text-gray-800">
               <EntryHeader left={<strong className="text-gray-900 font-serif">{pub.title}</strong>} right={pub.date} rightClassName="text-[9.5pt] text-gray-600 font-sans shrink-0 ml-2" />
               <div className="text-gray-700 text-[9.5pt] italic">{pub.subtitle}</div>
               {pub.description && <p className="text-gray-600 text-[9.5pt] pt-0.5">{pub.description}</p>}
@@ -98,7 +99,7 @@ export default function TemplateAcademic({ data }: TemplateProps) {
       <ResumeSection title="RESEARCH PROJECTS & GRANTS" style={getSectionStyle('projects', data.customization)} titleClassName="text-[11pt] font-bold uppercase tracking-wider text-gray-900 border-b-2 border-gray-900 pb-1">
         <div className="space-y-3 pt-1">
           {projects.map((proj) => (
-            <div key={proj.id} className="space-y-1">
+            <div key={proj.id} className="resume-entry space-y-1">
               <EntryHeader
                 left={
                   <div className="flex items-center gap-2">
@@ -122,7 +123,7 @@ export default function TemplateAcademic({ data }: TemplateProps) {
                   Methodologies/Tools: {proj.tech.join(', ')}
                 </p>
               )}
-              {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="list-disc list-outside ml-5 space-y-1 text-[9.5pt] text-gray-800 leading-relaxed mt-1" />}
+              {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="resume-bullets space-y-1 text-[9.5pt] text-gray-800 leading-relaxed mt-1" />}
             </div>
           ))}
         </div>
@@ -196,9 +197,14 @@ export default function TemplateAcademic({ data }: TemplateProps) {
   };
 
   return (
-    <div className="font-serif text-gray-900 leading-normal">
+    <ResumePage 
+      pageSize={data.customization?.pageSize} 
+      spacing={data.customization?.spacing}
+      accentColor={data.accentColor}
+      font={data.customization?.font}
+    >
       {/* Header */}
-      <header className="border-b-2 border-gray-900 pb-3 mb-6 text-center">
+      <header className="border-b-2 border-gray-900 pb-3 mb-2 text-center resume-header">
         <h1 className="text-[22pt] font-bold tracking-tight text-gray-900 uppercase">
           {basicInfo.name || 'YOUR NAME'}
         </h1>
@@ -244,6 +250,6 @@ export default function TemplateAcademic({ data }: TemplateProps) {
       <div className="flex flex-col gap-5">
         {renderSectionsByOrder(data, sectionRenderers)}
       </div>
-    </div>
+    </ResumePage>
   );
 }

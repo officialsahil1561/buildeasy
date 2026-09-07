@@ -31,8 +31,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
-          <FormField label="Full Name" required>
+          <FormField label="Full Name" required htmlFor="basic-name">
             <input
+              id="basic-name"
               type="text"
               value={data.basicInfo.name || ''}
               onChange={(e) => updateBasic('name', e.target.value)}
@@ -43,8 +44,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
         </div>
 
         <div className="md:col-span-2">
-          <FormField label="Professional Title" recommended tooltip="e.g. Senior Frontend Engineer">
+          <FormField label="Professional Title" recommended tooltip="e.g. Senior Frontend Engineer" htmlFor="basic-tagline">
             <input
+              id="basic-tagline"
               type="text"
               value={data.basicInfo.tagline || ''}
               onChange={(e) => updateBasic('tagline', e.target.value)}
@@ -54,8 +56,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
           </FormField>
         </div>
 
-        <FormField label="Email" required>
+        <FormField label="Email" required htmlFor="basic-email">
           <input
+            id="basic-email"
             type="email"
             value={data.basicInfo.email || ''}
             onChange={(e) => updateBasic('email', e.target.value)}
@@ -64,8 +67,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
           />
         </FormField>
 
-        <FormField label="Phone" recommended>
+        <FormField label="Phone" recommended htmlFor="basic-phone">
           <input
+            id="basic-phone"
             type="tel"
             value={data.basicInfo.phone || ''}
             onChange={(e) => updateBasic('phone', e.target.value)}
@@ -75,8 +79,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
         </FormField>
 
         <div className="md:col-span-2">
-          <FormField label="Location" recommended tooltip="City, State / Remote">
+          <FormField label="Location" recommended tooltip="City, State / Remote" htmlFor="basic-location">
             <input
+              id="basic-location"
               type="text"
               value={data.basicInfo.location || ''}
               onChange={(e) => updateBasic('location', e.target.value)}
@@ -86,8 +91,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
           </FormField>
         </div>
 
-        <FormField label="Personal Website">
+        <FormField label="Personal Website" htmlFor="basic-website">
           <input
+            id="basic-website"
             type="url"
             value={data.basicInfo.website || ''}
             onChange={(e) => updateBasic('website', e.target.value)}
@@ -96,8 +102,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
           />
         </FormField>
 
-        <FormField label="LinkedIn Profile">
+        <FormField label="LinkedIn Profile" htmlFor="basic-linkedin">
           <input
+            id="basic-linkedin"
             type="url"
             value={data.basicInfo.linkedin || ''}
             onChange={(e) => updateBasic('linkedin', e.target.value)}
@@ -106,8 +113,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
           />
         </FormField>
 
-        <FormField label="GitHub Profile">
+        <FormField label="GitHub Profile" htmlFor="basic-github">
           <input
+            id="basic-github"
             type="url"
             value={data.basicInfo.github || ''}
             onChange={(e) => updateBasic('github', e.target.value)}
@@ -116,8 +124,9 @@ export default function BasicInfoEditor({ data, onChange }: BasicInfoEditorProps
           />
         </FormField>
 
-        <FormField label="Portfolio URL">
+        <FormField label="Portfolio URL" htmlFor="basic-portfolio">
           <input
+            id="basic-portfolio"
             type="url"
             value={data.basicInfo.portfolio || ''}
             onChange={(e) => updateBasic('portfolio', e.target.value)}

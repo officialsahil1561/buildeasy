@@ -5,28 +5,28 @@ import BuildEasyLogo from './BuildEasyLogo';
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-[#E5E7EB] shrink-0 select-none" id="site-footer">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-14 pb-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-10 pb-8">
         
         {/* Top Footer Area */}
-        <div className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-16">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-16">
           
           {/* Left Column: Brand Statement */}
-          <div className="max-w-[300px] flex flex-col gap-3">
+          <div className="max-w-[280px] flex flex-col gap-2">
             <Link to="/" aria-label="BuildEasy Home" className="inline-block">
-              <BuildEasyLogo size="md" />
+              <BuildEasyLogo size="sm" />
             </Link>
-            <p className="text-xs text-gray-500 leading-relaxed font-sans">
-              Craft a resume that reflects your professional caliber. High-end editorial design meets intuitive building.
+            <p className="text-[11px] text-gray-500 leading-relaxed font-sans">
+              Precision-crafted resumes for modern professionals. High-end editorial design meets intuitive building.
             </p>
           </div>
 
-          {/* Right Section: Compact Links Grid (70-80% of width maximum on desktop) */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-8 sm:gap-12 md:gap-16 md:max-w-2xl">
+          {/* Right Section: Compact Links Grid */}
+          <div className="flex flex-wrap gap-8 sm:gap-12 md:gap-16">
             
             {/* Product Column */}
-            <div className="min-w-[120px] flex flex-col gap-3">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 font-sans">Product</h4>
-              <ul className="flex flex-col gap-2 text-xs text-gray-500">
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.05em] text-gray-900 font-sans">Product</h4>
+              <ul className="flex flex-col gap-1.5 text-[11px] text-gray-500">
                 <li>
                   <Link to="/builder" className="hover:text-gray-900 transition-colors duration-150">
                     Resume Builder
@@ -51,9 +51,9 @@ export default function Footer() {
             </div>
 
             {/* Resources Column */}
-            <div className="min-w-[120px] flex flex-col gap-3">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 font-sans">Resources</h4>
-              <ul className="flex flex-col gap-2 text-xs text-gray-500">
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.05em] text-gray-900 font-sans">Resources</h4>
+              <ul className="flex flex-col gap-1.5 text-[11px] text-gray-500">
                 <li>
                   <Link to="/resume-tips" className="hover:text-gray-900 transition-colors duration-150">
                     Resume Tips
@@ -73,9 +73,9 @@ export default function Footer() {
             </div>
 
             {/* Legal Column */}
-            <div className="min-w-[120px] flex flex-col gap-3">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 font-sans">Legal</h4>
-              <ul className="flex flex-col gap-2 text-xs text-gray-500">
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.05em] text-gray-900 font-sans">Legal</h4>
+              <ul className="flex flex-col gap-1.5 text-[11px] text-gray-500">
                 <li>
                   <Link to="/privacy" className="hover:text-gray-900 transition-colors duration-150">
                     Privacy Policy
@@ -97,7 +97,7 @@ export default function Footer() {
         <div className="h-px bg-gray-100 w-full mt-10 mb-5" />
 
         {/* Bottom Row Area */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] text-gray-400 font-sans">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-gray-400 font-sans uppercase tracking-wider">
           <span>© 2026 BuildEasy. All rights reserved.</span>
           <span className="sm:text-right">Designed with precision.</span>
         </div>

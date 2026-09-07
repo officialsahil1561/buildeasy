@@ -2,6 +2,7 @@ import React from 'react';
 import { PortfolioData } from '../types';
 import { getSectionStyle, ResumeSection, EntryHeader, EntryBullets, renderSectionsByOrder } from './TemplateRenderer';
 import { getNormalizedResumeContact } from '../lib/template-helpers';
+import ResumePage from './resume/ResumePage';
 
 interface TemplateProps {
   data: PortfolioData;
@@ -41,7 +42,7 @@ export default function TemplateModern({ data }: TemplateProps) {
       <ResumeSection title="Experience" themeColor={themeColor} style={getSectionStyle('experience', data.customization)}>
         <div className="space-y-5">
           {experience.map((exp) => (
-            <div key={exp.id} className="space-y-1">
+            <div key={exp.id} className="resume-entry space-y-1">
               <EntryHeader
                 left={
                   <div>
@@ -52,7 +53,7 @@ export default function TemplateModern({ data }: TemplateProps) {
                 }
                 right={`${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`}
               />
-              {exp.bullets.length > 0 && <EntryBullets bullets={exp.bullets} />}
+              {(exp.bullets?.length ?? 0) > 0 && <EntryBullets bullets={exp.bullets} />}
             </div>
           ))}
         </div>
@@ -62,7 +63,7 @@ export default function TemplateModern({ data }: TemplateProps) {
       <ResumeSection title="Education" themeColor={themeColor} style={getSectionStyle('education', data.customization)}>
         <div className="space-y-3">
           {education.map((edu) => (
-            <div key={edu.id} className="space-y-0.5">
+            <div key={edu.id} className="resume-entry space-y-0.5">
               <EntryHeader
                 left={
                   <div>
@@ -84,7 +85,7 @@ export default function TemplateModern({ data }: TemplateProps) {
       <ResumeSection title="Projects" themeColor={themeColor} style={getSectionStyle('projects', data.customization)}>
         <div className="space-y-4">
           {projects.map((proj) => (
-            <div key={proj.id} className="space-y-1">
+            <div key={proj.id} className="resume-entry space-y-1">
               <EntryHeader
                 left={
                   <div className="flex items-center gap-2">
@@ -146,7 +147,7 @@ export default function TemplateModern({ data }: TemplateProps) {
           <ResumeSection title="Certifications" themeColor={themeColor} style={getSectionStyle('certifications', data.customization)}>
             <div className="space-y-2">
               {data.certifications.map((cert) => (
-                <div key={cert.id} className="space-y-0.5 text-[10pt] text-gray-800">
+                <div key={cert.id} className="resume-entry space-y-0.5 text-[10pt] text-gray-800">
                   <EntryHeader left={<strong className="text-gray-900">{cert.title}</strong>} right={cert.date} />
                   <div className="text-gray-700 text-[9.5pt]">{cert.subtitle}</div>
                   {cert.description && <p className="text-gray-600 text-[9.5pt] pt-0.5">{cert.description}</p>}
@@ -205,9 +206,14 @@ export default function TemplateModern({ data }: TemplateProps) {
   };
 
   return (
-    <div className="font-sans text-gray-900 leading-normal">
+    <ResumePage 
+      pageSize={data.customization?.pageSize} 
+      spacing={data.customization?.spacing}
+      accentColor={data.accentColor}
+      font={data.customization?.font}
+    >
       {/* Header */}
-      <header className="border-b-2 pb-4 mb-6" style={{ borderColor: themeColor }}>
+      <header className="border-b-2 pb-4 mb-2 resume-header" style={{ borderColor: themeColor }}>
         <h1 className="text-[24pt] font-extrabold tracking-tight" style={{ color: themeColor }}>
           {basicInfo.name || 'YOUR NAME'}
         </h1>
@@ -254,6 +260,6 @@ export default function TemplateModern({ data }: TemplateProps) {
       <div className="flex flex-col gap-6">
         {renderSectionsByOrder(data, sectionRenderers)}
       </div>
-    </div>
+    </ResumePage>
   );
 }

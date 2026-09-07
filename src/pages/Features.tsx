@@ -13,7 +13,7 @@ export default function Features() {
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="BuildEasy Features — Compact Builder, Live Preview & Export"
-        description="Explore BuildEasy features: compact section-based editing, drag-and-drop section reordering, real-time preview, A4 & Letter page format support, and vector PDF exports."
+        description="Explore BuildEasy features: compact section-based editing, drag-and-drop section reordering, real-time preview, A4 & Letter page format support, and print-ready PDF exports."
         canonicalUrl="/features"
       />
 
@@ -104,7 +104,7 @@ export default function Features() {
                 </div>
                 <h3 className="font-bold text-lg mb-2">PDF Export</h3>
                 <p className="text-sm text-[#4B5563] leading-relaxed">
-                  Download high-resolution, print-ready vector PDF files with preserved formatting.
+                  Download print-ready PDF files with selectable text and preserved formatting.
                 </p>
               </div>
             </div>
@@ -113,7 +113,7 @@ export default function Features() {
             <div className="mt-16 bg-[#111111] text-white rounded-2xl p-10 text-center flex flex-col items-center">
               <h3 className="font-serif text-3xl mb-4">Try all features in the builder</h3>
               <p className="text-gray-300 max-w-xl mb-8 text-sm">
-                Build your resume for free with instant live rendering and vector PDF export.
+                Build your resume for free with instant live rendering and print-ready PDF export.
               </p>
               <Link
                 to="/builder"

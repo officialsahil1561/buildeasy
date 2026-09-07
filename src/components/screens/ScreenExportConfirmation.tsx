@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { PortfolioData } from '../../types';
 import PillButton from '../common/PillButton';
 import { triggerAuthoritativePdfExport, downloadBackupJson, PdfExportResult } from '../../lib/exporter';
-import { Check, FileText, Download, ArrowLeft, RotateCcw, Loader2, FileCode } from 'lucide-react';
+import { Check, FileText, Download, ArrowLeft, RotateCcw, Loader2, FileCode, Lock, CreditCard } from 'lucide-react';
+import { isResumePaid, markResumeAsPaid } from '../../lib/storage';
 
 interface ScreenExportConfirmationProps {
   data: PortfolioData;
@@ -18,7 +19,11 @@ export default function ScreenExportConfirmation({
   onStartOver,
 }: ScreenExportConfirmationProps) {
   const [isExportingAgain, setIsExportingAgain] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [hasPaidNow, setHasPaidNow] = useState(false);
 
+  const isPaid = (data.id && isResumePaid(data.id)) || hasPaidNow;
+  
   const firstName = data.basicInfo?.firstName || data.basicInfo?.name?.split(' ')[0] || 'Resume';
   const lastName = data.basicInfo?.lastName || data.basicInfo?.name?.split(' ').slice(1).join(' ') || '';
   const cleanFirst = firstName.trim().replace(/[^a-zA-Z0-9]/g, '');
@@ -27,7 +32,20 @@ export default function ScreenExportConfirmation({
   
   const pageSizeLabel = data.customization?.pageSize === 'a4' ? 'A4' : 'Letter';
 
+  const handlePayment = async () => {
+    setIsProcessingPayment(true);
+    // Simulate Razorpay / Payment Flow
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    if (data.id) {
+      markResumeAsPaid(data.id);
+    }
+    setHasPaidNow(true);
+    setIsProcessingPayment(false);
+  };
+
   const handleDownloadAgain = async () => {
+    if (!isPaid) return;
     setIsExportingAgain(true);
     try {
       await triggerAuthoritativePdfExport(data);
@@ -51,7 +69,7 @@ export default function ScreenExportConfirmation({
             Your Resume is Ready!
           </h1>
           <p className="text-xs text-[#6B7280] leading-relaxed max-w-xs mx-auto">
-            Your document has been formatted for standard {pageSizeLabel} high-resolution print, vector typography, and professional submission.
+            Your document has been formatted for standard {pageSizeLabel} print layout with selectable text and professional submission.
           </p>
         </div>
 
@@ -66,7 +84,7 @@ export default function ScreenExportConfirmation({
                 {fileName}
               </p>
               <div className="flex items-center gap-3 text-[11px] text-[#6B7280] mt-0.5">
-                <span>Format: <strong className="text-[#111827] font-semibold">Vector PDF</strong></span>
+                <span>Format: <strong className="text-[#111827] font-semibold">Text-based PDF</strong></span>
                 <span>•</span>
                 <span>Page: <strong className="text-[#111827] font-semibold">{pageSizeLabel}</strong></span>
               </div>
@@ -76,15 +94,39 @@ export default function ScreenExportConfirmation({
 
         {/* Primary Actions */}
         <div className="space-y-3 pt-2">
-          <PillButton
-            variant="primary"
-            onClick={handleDownloadAgain}
-            disabled={isExportingAgain}
-            iconLeft={isExportingAgain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            className="w-full text-xs py-3 justify-center cursor-pointer"
-          >
-            {isExportingAgain ? 'Preparing Document...' : 'Download PDF Document'}
-          </PillButton>
+          {!isPaid ? (
+            <div className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-left">
+                <Lock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-bold text-amber-900">One-time payment required</p>
+                  <p className="text-[11px] text-amber-700 mt-1">
+                    A small fee of ₹20 unlocks this specific resume permanently for unlimited high-quality PDF downloads.
+                  </p>
+                </div>
+              </div>
+              
+              <PillButton
+                variant="primary"
+                onClick={handlePayment}
+                disabled={isProcessingPayment}
+                iconLeft={isProcessingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                className="w-full text-xs py-3.5 justify-center cursor-pointer bg-blue-600 hover:bg-blue-700"
+              >
+                {isProcessingPayment ? 'Processing...' : 'Pay ₹20 to Unlock PDF'}
+              </PillButton>
+            </div>
+          ) : (
+            <PillButton
+              variant="primary"
+              onClick={handleDownloadAgain}
+              disabled={isExportingAgain}
+              iconLeft={isExportingAgain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              className="w-full text-xs py-3.5 justify-center cursor-pointer bg-green-600 hover:bg-green-700"
+            >
+              {isExportingAgain ? 'Preparing Document...' : 'Download PDF Document'}
+            </PillButton>
+          )}
 
           <PillButton
             variant="secondary"

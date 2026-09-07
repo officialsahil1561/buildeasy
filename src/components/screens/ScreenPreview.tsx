@@ -91,7 +91,7 @@ export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: 
 
       {/* 2. Main Sheet Canvas Container */}
       <div className="flex-1 flex justify-center items-start py-8 md:py-12 px-4">
-        <div className="w-full max-w-[816px] bg-white shadow-2xl rounded-sm transition-all pb-12">
+        <div className="w-full max-w-4xl flex justify-center pb-12">
           <LivePreviewPane data={data} className="w-full" />
         </div>
       </div>

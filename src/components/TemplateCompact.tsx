@@ -2,6 +2,7 @@ import React from 'react';
 import { PortfolioData } from '../types';
 import { getSectionStyle, ResumeSection, EntryHeader, EntryBullets, renderSectionsByOrder } from './TemplateRenderer';
 import { getNormalizedResumeContact } from '../lib/template-helpers';
+import ResumePage from './resume/ResumePage';
 
 interface TemplateProps {
   data: PortfolioData;
@@ -40,7 +41,7 @@ export default function TemplateCompact({ data }: TemplateProps) {
       <ResumeSection title="EXPERIENCE" style={getSectionStyle('experience', data.customization)} titleClassName="text-[9.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-1">
         <div className="space-y-2">
           {experience.map((exp) => (
-            <div key={exp.id} className="space-y-0.5">
+            <div key={exp.id} className="resume-entry space-y-0.5">
               <EntryHeader
                 left={
                   <div>
@@ -52,7 +53,7 @@ export default function TemplateCompact({ data }: TemplateProps) {
                 right={`${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`}
                 rightClassName="text-[8.5pt] text-gray-600 font-medium shrink-0 ml-2"
               />
-              {exp.bullets.length > 0 && <EntryBullets bullets={exp.bullets} className="list-disc list-outside ml-4 space-y-0.5 text-[8.5pt] text-gray-800 leading-snug" />}
+              {(exp.bullets?.length ?? 0) > 0 && <EntryBullets bullets={exp.bullets} className="resume-bullets space-y-0.5 text-[8.5pt] text-gray-800 leading-snug mt-1" />}
             </div>
           ))}
         </div>
@@ -62,7 +63,7 @@ export default function TemplateCompact({ data }: TemplateProps) {
       <ResumeSection title="EDUCATION" style={getSectionStyle('education', data.customization)} titleClassName="text-[9.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-1">
         <div className="space-y-1.5">
           {education.map((edu) => (
-            <div key={edu.id} className="space-y-0.5">
+            <div key={edu.id} className="resume-entry space-y-0.5">
               <EntryHeader
                 left={
                   <div>
@@ -84,7 +85,7 @@ export default function TemplateCompact({ data }: TemplateProps) {
       <ResumeSection title="PROJECTS" style={getSectionStyle('projects', data.customization)} titleClassName="text-[9.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-1">
         <div className="space-y-1.5">
           {projects.map((proj) => (
-            <div key={proj.id} className="space-y-0.5">
+            <div key={proj.id} className="resume-entry space-y-0.5">
               <EntryHeader
                 left={
                   <div className="flex items-center gap-1.5">
@@ -103,7 +104,7 @@ export default function TemplateCompact({ data }: TemplateProps) {
                 }
               />
               {proj.description && <p className="text-[8.5pt] text-gray-800 leading-snug">{proj.description}</p>}
-              {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="list-disc list-outside ml-4 space-y-0.5 text-[8.5pt] text-gray-800 leading-snug" />}
+              {proj.bullets && proj.bullets.length > 0 && <EntryBullets bullets={proj.bullets} className="resume-bullets space-y-0.5 text-[8.5pt] text-gray-800 leading-snug mt-1" />}
             </div>
           ))}
         </div>
@@ -131,7 +132,7 @@ export default function TemplateCompact({ data }: TemplateProps) {
           <ResumeSection title="CERTIFICATIONS" style={getSectionStyle('certifications', data.customization)} titleClassName="text-[9.5pt] font-bold uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-1">
             <div className="space-y-1">
               {data.certifications.map((cert) => (
-                <div key={cert.id} className="flex justify-between text-[8.5pt] text-gray-800">
+                <div key={cert.id} className="resume-entry flex justify-between text-[8.5pt] text-gray-800">
                   <span>
                     <strong className="text-gray-900">{cert.title}</strong> — {cert.subtitle}
                   </span>
@@ -193,9 +194,14 @@ export default function TemplateCompact({ data }: TemplateProps) {
   };
 
   return (
-    <div className="font-sans text-gray-900 leading-tight text-[9pt]">
+    <ResumePage 
+      pageSize={data.customization?.pageSize} 
+      spacing={data.customization?.spacing}
+      accentColor={data.accentColor}
+      font={data.customization?.font}
+    >
       {/* Header */}
-      <header className="border-b border-gray-400 pb-2 mb-3">
+      <header className="border-b border-gray-400 pb-2 mb-1 resume-header">
         <div className="flex justify-between items-start flex-wrap gap-2">
           <div>
             <h1 className="text-[18pt] font-black tracking-tight text-gray-900 uppercase">
@@ -243,6 +249,6 @@ export default function TemplateCompact({ data }: TemplateProps) {
       <div className="flex flex-col gap-3">
         {renderSectionsByOrder(data, sectionRenderers)}
       </div>
-    </div>
+    </ResumePage>
   );
 }

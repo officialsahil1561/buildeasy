@@ -75,7 +75,7 @@ const TEMPLATE_DETAILS: Record<string, TemplateDetail> = {
       'Font choices ranging from clean sans-serifs to executive serifs',
       'Adjustable section spacing and density',
       'Full control over hidden or visible leadership sections',
-      'Instant vector PDF output'
+      'Print-ready PDF with selectable text'
     ],
     sampleSections: [
       'Executive Profile',
@@ -107,7 +107,7 @@ const TEMPLATE_DETAILS: Record<string, TemplateDetail> = {
       'Custom accent color selection',
       'Font family and weight adjustments',
       'Reorderable main and sidebar content modules',
-      'Vector PDF export'
+      'Print-ready PDF with selectable text'
     ],
     sampleSections: [
       'Contact & Social Links',
@@ -170,7 +170,7 @@ const TEMPLATE_DETAILS: Record<string, TemplateDetail> = {
     customizationFeatures: [
       'Adjustable line heights and margin spacing',
       'Custom section order',
-      'Print-ready vector PDF'
+      'Print-ready PDF with selectable text'
     ],
     sampleSections: [
       'Professional Overview',

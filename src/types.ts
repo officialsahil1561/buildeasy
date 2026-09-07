@@ -106,6 +106,7 @@ export interface CustomSectionItem {
 }
 
 export interface PortfolioData {
+  id: string;
   templateId: TemplateId;
   accentColor?: string;
   customization?: CustomizationSettings;
@@ -141,6 +142,7 @@ export function createDefaultCustomization(): CustomizationSettings {
 
 export function createBlankResume(): PortfolioData {
   return {
+    id: crypto.randomUUID(),
     templateId: 'minimal',
     resumeName: 'Untitled Resume',
     customization: createDefaultCustomization(),
@@ -177,6 +179,7 @@ export const EMPTY_RESUME_DATA: PortfolioData = createBlankResume();
 export const BLANK_RESUME_DATA: PortfolioData = createBlankResume();
 
 export const INITIAL_PORTFOLIO_DATA: PortfolioData = {
+  id: 'jane-doe-demo-resume',
   templateId: 'minimal',
   customization: createDefaultCustomization(),
   basicInfo: {
