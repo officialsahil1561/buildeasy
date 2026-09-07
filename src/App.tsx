@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { ResumeProvider } from './context/ResumeContext';
 import Home from './pages/Home';
@@ -21,11 +21,32 @@ import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 
+function GitHubPagesRedirectHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const redirectUrl = sessionStorage.redirect;
+    if (redirectUrl) {
+      delete sessionStorage.redirect;
+      try {
+        const urlObj = new URL(redirectUrl);
+        const pathAndQuery = urlObj.pathname + urlObj.search + urlObj.hash;
+        if (pathAndQuery && pathAndQuery !== '/' && !pathAndQuery.endsWith('404.html')) {
+          navigate(pathAndQuery, { replace: true });
+        }
+      } catch {
+        // Ignore parsing errors
+      }
+    }
+  }, [navigate]);
+  return null;
+}
+
 export default function App() {
   return (
     <HelmetProvider>
       <ResumeProvider>
         <BrowserRouter>
+          <GitHubPagesRedirectHandler />
           <Routes>
             <Route path="/" element={<Home />} />
             
