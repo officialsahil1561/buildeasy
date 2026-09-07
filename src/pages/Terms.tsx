@@ -13,6 +13,10 @@ export default function Terms() {
         title="Terms of Service | BuildEasy"
         description="BuildEasy Terms of Service regarding usage of our resume builder and templates."
         canonicalUrl="/terms"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Terms of Service', url: '/terms' },
+        ]}
       />
 
       <Header

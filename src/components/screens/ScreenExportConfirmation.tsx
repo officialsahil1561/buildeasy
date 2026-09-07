@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { PortfolioData } from '../../types';
 import PillButton from '../common/PillButton';
 import { triggerAuthoritativePdfExport, downloadBackupJson, PdfExportResult } from '../../lib/exporter';
-import { Check, FileText, Download, ArrowLeft, RotateCcw, Loader2, FileCode, Lock, CreditCard } from 'lucide-react';
-import { isResumePaid, markResumeAsPaid } from '../../lib/storage';
+import { Check, FileText, Download, ArrowLeft, RotateCcw, Loader2, FileCode } from 'lucide-react';
 
 interface ScreenExportConfirmationProps {
   data: PortfolioData;
@@ -19,11 +18,8 @@ export default function ScreenExportConfirmation({
   onStartOver,
 }: ScreenExportConfirmationProps) {
   const [isExportingAgain, setIsExportingAgain] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [hasPaidNow, setHasPaidNow] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
-  const isPaid = (data.id && isResumePaid(data.id)) || hasPaidNow;
-  
   const firstName = data.basicInfo?.firstName || data.basicInfo?.name?.split(' ')[0] || 'Resume';
   const lastName = data.basicInfo?.lastName || data.basicInfo?.name?.split(' ').slice(1).join(' ') || '';
   const cleanFirst = firstName.trim().replace(/[^a-zA-Z0-9]/g, '');
@@ -32,23 +28,16 @@ export default function ScreenExportConfirmation({
   
   const pageSizeLabel = data.customization?.pageSize === 'a4' ? 'A4' : 'Letter';
 
-  const handlePayment = async () => {
-    setIsProcessingPayment(true);
-    // Simulate Razorpay / Payment Flow
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    if (data.id) {
-      markResumeAsPaid(data.id);
-    }
-    setHasPaidNow(true);
-    setIsProcessingPayment(false);
-  };
-
   const handleDownloadAgain = async () => {
-    if (!isPaid) return;
     setIsExportingAgain(true);
+    setExportError(null);
     try {
-      await triggerAuthoritativePdfExport(data);
+      const res = await triggerAuthoritativePdfExport(data);
+      if (!res.success) {
+        setExportError(res.error || 'Unable to start download. Please try again.');
+      }
+    } catch (err: any) {
+      setExportError(err?.message || 'Download failed.');
     } finally {
       setIsExportingAgain(false);
     }
@@ -73,6 +62,12 @@ export default function ScreenExportConfirmation({
           </p>
         </div>
 
+        {exportError && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-lg text-xs font-medium text-left">
+            {exportError}
+          </div>
+        )}
+
         {/* File Details Card */}
         <div className="bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] p-4 text-left space-y-3">
           <div className="flex items-center gap-3">
@@ -94,39 +89,15 @@ export default function ScreenExportConfirmation({
 
         {/* Primary Actions */}
         <div className="space-y-3 pt-2">
-          {!isPaid ? (
-            <div className="space-y-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-left">
-                <Lock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-amber-900">One-time payment required</p>
-                  <p className="text-[11px] text-amber-700 mt-1">
-                    A small fee of ₹20 unlocks this specific resume permanently for unlimited high-quality PDF downloads.
-                  </p>
-                </div>
-              </div>
-              
-              <PillButton
-                variant="primary"
-                onClick={handlePayment}
-                disabled={isProcessingPayment}
-                iconLeft={isProcessingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-                className="w-full text-xs py-3.5 justify-center cursor-pointer bg-blue-600 hover:bg-blue-700"
-              >
-                {isProcessingPayment ? 'Processing...' : 'Pay ₹20 to Unlock PDF'}
-              </PillButton>
-            </div>
-          ) : (
-            <PillButton
-              variant="primary"
-              onClick={handleDownloadAgain}
-              disabled={isExportingAgain}
-              iconLeft={isExportingAgain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              className="w-full text-xs py-3.5 justify-center cursor-pointer bg-green-600 hover:bg-green-700"
-            >
-              {isExportingAgain ? 'Preparing Document...' : 'Download PDF Document'}
-            </PillButton>
-          )}
+          <PillButton
+            variant="primary"
+            onClick={handleDownloadAgain}
+            disabled={isExportingAgain}
+            iconLeft={isExportingAgain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            className="w-full text-xs py-3.5 justify-center cursor-pointer bg-[#111827] hover:bg-[#27272a] text-white"
+          >
+            {isExportingAgain ? 'Preparing Document...' : 'Download PDF Again'}
+          </PillButton>
 
           <PillButton
             variant="secondary"

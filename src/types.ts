@@ -140,9 +140,20 @@ export function createDefaultCustomization(): CustomizationSettings {
   };
 }
 
+export function createSafeUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      // Fallback
+    }
+  }
+  return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
 export function createBlankResume(): PortfolioData {
   return {
-    id: crypto.randomUUID(),
+    id: createSafeUUID(),
     templateId: 'minimal',
     resumeName: 'Untitled Resume',
     customization: createDefaultCustomization(),

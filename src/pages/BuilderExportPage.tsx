@@ -14,6 +14,7 @@ export default function BuilderExportPage() {
         title="Your Resume is Ready | BuildEasy"
         description="Download your print-ready PDF resume and save JSON backups."
         canonicalUrl="/builder/export"
+        noindex={true}
       />
       <ScreenExportConfirmation
         data={data}

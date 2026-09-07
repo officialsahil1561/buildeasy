@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, CustomSectionItem, AchievementItem } from '../../../types';
+import { PortfolioData, CustomSectionItem, AchievementItem, createSafeUUID } from '../../../types';
 import { FormField } from './EditorPrimitives';
 import { Plus, Trash2, Award, BookOpen, Trophy, PlusCircle } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export default function AdditionalSectionsEditor({ data, onChange }: AdditionalS
   // 1. Certifications
   const handleAddCert = () => {
     const newCert: CustomSectionItem = {
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       title: '',
       subtitle: '',
       date: '',
@@ -42,7 +42,7 @@ export default function AdditionalSectionsEditor({ data, onChange }: AdditionalS
   // 2. Achievements
   const handleAddAchievement = () => {
     const newAch: AchievementItem = {
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       title: '',
       issuer: '',
       date: '',
@@ -69,7 +69,7 @@ export default function AdditionalSectionsEditor({ data, onChange }: AdditionalS
   // 3. Publications
   const handleAddPublication = () => {
     const newPub: CustomSectionItem = {
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       title: '',
       subtitle: '',
       date: '',
@@ -97,11 +97,11 @@ export default function AdditionalSectionsEditor({ data, onChange }: AdditionalS
   // 4. Custom Sections
   const handleAddCustomSection = () => {
     const newSection = {
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       name: 'Custom Section',
       items: [
         {
-          id: crypto.randomUUID(),
+          id: createSafeUUID(),
           title: '',
           subtitle: '',
           date: '',
@@ -470,7 +470,7 @@ export default function AdditionalSectionsEditor({ data, onChange }: AdditionalS
                         const updated = [...(data.customSections || [])];
                         const updatedItems = [
                           ...(updated[sIdx].items || []),
-                          { id: crypto.randomUUID(), title: '', subtitle: '', date: '', description: '' },
+                          { id: createSafeUUID(), title: '', subtitle: '', date: '', description: '' },
                         ];
                         updated[sIdx] = { ...updated[sIdx], items: updatedItems };
                         onChange({ ...data, customSections: updated });

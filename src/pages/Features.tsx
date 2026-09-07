@@ -9,12 +9,19 @@ import { ArrowRight, Layers, Eye, Download, MoveVertical, LayoutGrid, CheckCircl
 export default function Features() {
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Features', url: '/features' },
+  ];
+
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="BuildEasy Features — Compact Builder, Live Preview & Export"
         description="Explore BuildEasy features: compact section-based editing, drag-and-drop section reordering, real-time preview, A4 & Letter page format support, and print-ready PDF exports."
         canonicalUrl="/features"
+        breadcrumbs={breadcrumbs}
+        keywords={['resume builder features', 'live resume preview', 'drag and drop resume', 'pdf resume export', 'ats resume format']}
       />
 
       <Header />

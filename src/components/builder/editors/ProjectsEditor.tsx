@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, ProjectItem } from '../../../types';
+import { PortfolioData, ProjectItem, createSafeUUID } from '../../../types';
 import { SectionHeader, AccordionEntry, FormField } from './EditorPrimitives';
 import { SortableList, SortableItem } from './SortableList';
 import { Plus, Trash2 } from 'lucide-react';
@@ -20,7 +20,7 @@ export default function ProjectsEditor({ data, onChange }: ProjectsEditorProps) 
   };
 
   const handleAdd = () => {
-    const newId = crypto.randomUUID();
+    const newId = createSafeUUID();
     const newItem: ProjectItem = {
       id: newId,
       title: '',
@@ -41,7 +41,7 @@ export default function ProjectsEditor({ data, onChange }: ProjectsEditorProps) 
   const handleDuplicate = (proj: ProjectItem, idx: number) => {
     const copy: ProjectItem = {
       ...proj,
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       title: proj.title ? `${proj.title} (Copy)` : 'Copy',
     };
     const updated = [...data.projects];
@@ -182,7 +182,8 @@ export default function ProjectsEditor({ data, onChange }: ProjectsEditorProps) 
                                 const newBullets = (proj.bullets || []).filter((_, i) => i !== bIdx);
                                 updateItem(idx, { bullets: newBullets });
                               }}
-                              aria-label="Delete"
+                              aria-label="Delete Bullet"
+                              title="Delete Bullet"
                               className="mt-1.5 p-1.5 text-[#9CA3AF] hover:text-rose-500 hover:bg-rose-50 rounded transition-colors cursor-pointer"
                             >
                               <Trash2 aria-label="Delete" className="w-3.5 h-3.5" />

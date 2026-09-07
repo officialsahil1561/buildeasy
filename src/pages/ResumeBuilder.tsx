@@ -9,12 +9,34 @@ import { ArrowRight, CheckCircle2, FileText, Sparkles, Sliders, Layout, ShieldCh
 export default function ResumeBuilder() {
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Resume Builder', url: '/resume-builder' },
+  ];
+
+  const appSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'BuildEasy Online Resume Builder',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web Browser',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description: 'Free, privacy-friendly online resume builder with live interactive preview, customizable typography and margin settings, and PDF export.',
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="Free Resume Builder — Craft Professional Resumes Online | BuildEasy"
         description="BuildEasy is a free, fast, and elegant resume builder. Edit in compact sections, preview live side-by-side, customize fonts & spacing, and export print-ready PDFs."
         canonicalUrl="/resume-builder"
+        breadcrumbs={breadcrumbs}
+        structuredData={appSchema}
+        keywords={['free resume builder', 'online resume maker', 'best resume builder', 'instant pdf resume', 'ats compliant resume']}
       />
 
       <Header />

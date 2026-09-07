@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, ExperienceItem } from '../../../types';
+import { PortfolioData, ExperienceItem, createSafeUUID } from '../../../types';
 import { Plus, Trash2, Edit2, Briefcase, Calendar } from 'lucide-react';
 
 interface WizardStepProps {
@@ -23,7 +23,7 @@ export default function WizardStepExperience({ data, onChange }: WizardStepProps
 
   const handleOpenAdd = () => {
     setForm({
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       role: '',
       org: '',
       startDate: '',

@@ -53,12 +53,33 @@ export default function FAQ() {
     setOpenIdx(openIdx === idx ? null : idx);
   };
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'FAQ', url: '/faq' },
+  ];
+
+  const faqStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="Frequently Asked Questions (FAQ) | BuildEasy"
         description="Find answers to common questions about BuildEasy: free usage, PDF exports, A4 and US Letter support, section reordering, and privacy."
         canonicalUrl="/faq"
+        breadcrumbs={breadcrumbs}
+        structuredData={faqStructuredData}
+        keywords={['resume builder faq', 'free resume maker questions', 'export resume pdf', 'resume builder privacy']}
       />
 
       <Header

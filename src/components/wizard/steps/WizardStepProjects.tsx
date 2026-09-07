@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, ProjectItem } from '../../../types';
+import { PortfolioData, ProjectItem, createSafeUUID } from '../../../types';
 import { Plus, Trash2, Edit2, Code, ExternalLink } from 'lucide-react';
 
 interface WizardStepProps {
@@ -23,7 +23,7 @@ export default function WizardStepProjects({ data, onChange }: WizardStepProps) 
 
   const handleOpenAdd = () => {
     setForm({
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       title: '',
       description: '',
       tech: [],

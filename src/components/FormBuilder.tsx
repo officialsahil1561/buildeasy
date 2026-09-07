@@ -17,7 +17,9 @@ import {
   ChevronDown,
   ChevronRight,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import {
   DndContext,
@@ -58,6 +60,8 @@ interface SectionCardProps {
   icon: any;
   badge?: string;
   isCollapsed: boolean;
+  isHidden: boolean;
+  onToggleVisibility: () => void;
   onToggleCollapse: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
@@ -72,6 +76,8 @@ function SectionCard({
   icon: Icon,
   badge,
   isCollapsed,
+  isHidden,
+  onToggleVisibility,
   onToggleCollapse,
   onMoveUp,
   onMoveDown,
@@ -100,13 +106,19 @@ function SectionCard({
       style={style}
       id={`section-${id}`}
       className={`bg-white border rounded-2xl overflow-hidden shadow-xs transition-all ${
-        isDragging ? 'opacity-60 ring-2 ring-[#2563EB] shadow-lg' : 'border-[#E5E7EB] hover:border-gray-300'
+        isDragging 
+          ? 'opacity-60 ring-2 ring-[#2563EB] shadow-lg' 
+          : isHidden 
+            ? 'border-dashed border-gray-300 bg-gray-50/60' 
+            : 'border-[#E5E7EB] hover:border-gray-300'
       }`}
     >
       {/* Section Header */}
       <div 
         onClick={onToggleCollapse}
-        className="flex items-center justify-between px-5 py-4 bg-white hover:bg-gray-50/80 transition-colors cursor-pointer select-none"
+        className={`flex items-center justify-between px-5 py-4 transition-colors cursor-pointer select-none ${
+          isHidden ? 'bg-gray-50/80 hover:bg-gray-100/60' : 'bg-white hover:bg-gray-50/80'
+        }`}
       >
         <div className="flex items-center gap-3.5">
           <div
@@ -120,16 +132,41 @@ function SectionCard({
           >
             <GripVertical className="w-4 h-4" />
           </div>
-          <div className="w-9 h-9 rounded-xl bg-white border border-[#E5E7EB] text-[#111827] flex items-center justify-center shrink-0 shadow-2xs">
-            <Icon className="w-4 h-4 text-gray-800" />
+          <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 shadow-2xs ${
+            isHidden ? 'bg-gray-100 border-gray-300 text-gray-400' : 'bg-white border-[#E5E7EB] text-[#111827]'
+          }`}>
+            <Icon className={`w-4 h-4 ${isHidden ? 'text-gray-400' : 'text-gray-800'}`} />
           </div>
           <div>
-            <h3 className="text-base font-serif font-bold text-[#111827] leading-tight">{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className={`text-base font-serif font-bold leading-tight ${isHidden ? 'text-gray-500 line-through decoration-gray-400' : 'text-[#111827]'}`}>
+                {title}
+              </h3>
+              {isHidden && (
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                  Hidden
+                </span>
+              )}
+            </div>
             {badge && <span className="text-xs text-gray-500 font-medium mt-0.5 block">{badge}</span>}
           </div>
         </div>
 
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            onClick={onToggleVisibility}
+            aria-label={isHidden ? `Show ${title} section on resume` : `Hide ${title} section from resume`}
+            title={isHidden ? `Show ${title} section on resume` : `Hide ${title} section from resume`}
+            className={`p-1.5 rounded transition-colors cursor-pointer ${
+              isHidden
+                ? 'text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100'
+                : 'text-gray-400 hover:text-black hover:bg-gray-100'
+            }`}
+          >
+            {isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+          <div className="w-px h-5 bg-gray-200 mx-0.5" />
           <button
             type="button"
             onClick={onMoveUp}
@@ -222,18 +259,49 @@ const SECTION_METADATA: Record<string, { label: string; icon: any; render: (prop
 export default function FormBuilder({ data, onChange }: FormBuilderProps) {
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
 
+  const hiddenSections = data.customization?.hiddenSections || [];
+
+  const isSectionHidden = (sectionId: string): boolean => {
+    if (sectionId === 'basic') {
+      return hiddenSections.includes('basic') || hiddenSections.includes('summary');
+    }
+    return hiddenSections.includes(sectionId);
+  };
+
+  const toggleSectionVisibility = (sectionId: string) => {
+    const customization = data.customization || createDefaultCustomization();
+    const currentHidden = customization.hiddenSections || [];
+    const targetKeys = sectionId === 'basic' ? ['basic', 'summary'] : [sectionId];
+    const isCurrentlyHidden = isSectionHidden(sectionId);
+
+    let nextHidden: string[];
+    if (isCurrentlyHidden) {
+      nextHidden = currentHidden.filter((s) => !targetKeys.includes(s));
+    } else {
+      nextHidden = [...currentHidden.filter((s) => !targetKeys.includes(s)), ...targetKeys];
+    }
+
+    onChange({
+      ...data,
+      customization: {
+        ...customization,
+        hiddenSections: nextHidden,
+      },
+    });
+  };
+
   const getSectionOrder = (): string[] => {
     const customOrder = data.customization?.sectionOrder;
     if (!customOrder || customOrder.length === 0) {
       return DEFAULT_SECTIONS;
     }
-    const normalized = customOrder.map(s => {
+    const normalized = customOrder.map((s) => {
       if (s === 'summary') return 'basic';
       if (s === 'custom') return 'certifications';
       return s;
     });
-    const missing = DEFAULT_SECTIONS.filter(s => !normalized.includes(s));
-    const combined = [...normalized.filter(s => DEFAULT_SECTIONS.includes(s)), ...missing];
+    const missing = DEFAULT_SECTIONS.filter((s) => !normalized.includes(s));
+    const combined = [...normalized.filter((s) => DEFAULT_SECTIONS.includes(s)), ...missing];
     if (!combined.includes('basic')) {
       combined.unshift('basic');
     }
@@ -314,7 +382,7 @@ export default function FormBuilder({ data, onChange }: FormBuilderProps) {
   };
 
   const toggleCollapse = (id: string) => {
-    setExpandedSectionId(prev => prev === id ? null : id);
+    setExpandedSectionId((prev) => (prev === id ? null : id));
   };
 
   return (
@@ -325,6 +393,7 @@ export default function FormBuilder({ data, onChange }: FormBuilderProps) {
         {sectionOrder.map((sectionId) => {
           const meta = SECTION_METADATA[sectionId];
           if (!meta) return null;
+          const isHidden = isSectionHidden(sectionId);
           return (
             <button
               key={sectionId}
@@ -335,9 +404,14 @@ export default function FormBuilder({ data, onChange }: FormBuilderProps) {
                   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
               }}
-              className="px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors whitespace-nowrap cursor-pointer"
+              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1 ${
+                isHidden
+                  ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
             >
-              {meta.label.split('&')[0].trim()}
+              {isHidden && <EyeOff className="w-3 h-3 text-amber-600 shrink-0" />}
+              <span>{meta.label.split('&')[0].trim()}</span>
             </button>
           );
         })}
@@ -368,6 +442,8 @@ export default function FormBuilder({ data, onChange }: FormBuilderProps) {
                       icon={meta.icon}
                       badge={getBadgeText(sectionId)}
                       isCollapsed={expandedSectionId !== sectionId}
+                      isHidden={isSectionHidden(sectionId)}
+                      onToggleVisibility={() => toggleSectionVisibility(sectionId)}
                       onToggleCollapse={() => toggleCollapse(sectionId)}
                       onMoveUp={() => handleMoveUp(idx)}
                       onMoveDown={() => handleMoveDown(idx)}

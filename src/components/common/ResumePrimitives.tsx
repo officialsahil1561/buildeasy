@@ -18,12 +18,16 @@ export const EntryHeader = ({ left, right, rightClassName = 'text-[9.5pt] text-g
   </div>
 );
 
-export const EntryBullets = ({ bullets, className = "resume-bullets space-y-1.5 text-[10pt] text-gray-700 leading-relaxed mt-1" }: { bullets: string[], className?: string }) => (
-  <ul className={className}>
-    {bullets.map((bullet, idx) => (
-      <li key={`bullet-${bullet.slice(0, 30).trim()}-${idx}`} className="break-words">
-        {bullet}
-      </li>
-    ))}
-  </ul>
-);
+export const EntryBullets = ({ bullets, className = "resume-bullets space-y-1.5 text-[10pt] text-gray-700 leading-relaxed mt-1" }: { bullets: string[], className?: string }) => {
+  const activeBullets = (bullets || []).filter((b) => typeof b === 'string' && b.trim().length > 0);
+  if (activeBullets.length === 0) return null;
+  return (
+    <ul className={className}>
+      {activeBullets.map((bullet, idx) => (
+        <li key={`bullet-${idx}-${bullet.slice(0, 20).trim()}`} className="break-words">
+          {bullet}
+        </li>
+      ))}
+    </ul>
+  );
+};

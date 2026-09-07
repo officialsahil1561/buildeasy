@@ -9,12 +9,53 @@ import { ArrowRight, CheckCircle } from 'lucide-react';
 export default function HowItWorks() {
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'How It Works', url: '/how-it-works' },
+  ];
+
+  const howToSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to Build a Professional Resume with BuildEasy',
+    description: 'Step-by-step guide to creating, customizing, and exporting a resume using BuildEasy.',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Pick Your Template',
+        text: 'Select from 6 editorial templates crafted for different industries and career stages.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Enter Your Information in Compact Sections',
+        text: 'Fill out your experience, education, skills, and projects with real-time feedback.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Fine-tune Typography & Spacing',
+        text: 'Customize font pairings, margins, line heights, and paper format (A4 or US Letter).',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Export Print-Ready PDF',
+        text: 'Generate and download an ATS-compliant, selectable text PDF ready for applications.',
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="How to Build a Resume with BuildEasy — Step-by-Step Guide"
         description="Learn how to build a resume with BuildEasy: choose a template, add your content in compact sections, customize design & spacing, and export to PDF."
         canonicalUrl="/how-it-works"
+        breadcrumbs={breadcrumbs}
+        structuredData={howToSchema}
+        keywords={['how to build a resume', 'resume creation guide', 'step by step resume builder', 'make resume online']}
       />
 
       <Header />

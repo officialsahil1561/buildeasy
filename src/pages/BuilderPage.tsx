@@ -14,6 +14,7 @@ export default function BuilderPage() {
         title="Resume Builder | BuildEasy"
         description="Edit your resume content, choose design preferences, and preview live in real-time."
         canonicalUrl="/builder"
+        noindex={true}
       />
       <ScreenBuilder
         data={data}

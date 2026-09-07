@@ -23,6 +23,10 @@ export default function Contact() {
         title="Contact Us | BuildEasy"
         description="Have questions or feedback about BuildEasy? Get in touch with our team."
         canonicalUrl="/contact"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Contact', url: '/contact' },
+        ]}
       />
 
       <Header

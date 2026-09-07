@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, EducationItem } from '../../../types';
+import { PortfolioData, EducationItem, createSafeUUID } from '../../../types';
 import { SectionHeader, AccordionEntry, FormField } from './EditorPrimitives';
 import { SortableList, SortableItem } from './SortableList';
 
@@ -19,7 +19,7 @@ export default function EducationEditor({ data, onChange }: EducationEditorProps
   };
 
   const handleAdd = () => {
-    const newId = crypto.randomUUID();
+    const newId = createSafeUUID();
     const newItem: EducationItem = {
       id: newId,
       institution: '',
@@ -41,7 +41,7 @@ export default function EducationEditor({ data, onChange }: EducationEditorProps
   const handleDuplicate = (edu: EducationItem, idx: number) => {
     const copy: EducationItem = {
       ...edu,
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       degree: edu.degree ? `${edu.degree} (Copy)` : 'Copy',
     };
     const updated = [...data.education];

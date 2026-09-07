@@ -71,12 +71,34 @@ export default function TemplatesIndex() {
     navigate(`/builder/start?template=${id}`);
   };
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Resume Templates', url: '/templates' },
+  ];
+
+  const templatesSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'BuildEasy Resume Templates',
+    description: 'Collection of 6 free, ATS-friendly resume templates.',
+    itemListElement: TEMPLATES.map((tmpl, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: tmpl.name,
+      description: tmpl.description,
+      url: `https://buildeasy.app/templates/${tmpl.id}`,
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title="Professional Resume Templates | BuildEasy"
         description="Choose from 6 professionally designed resume templates: Minimal, Executive, Modern, Academic, Classic, and Compact. Free to customize and export to PDF."
-        canonicalUrl="/resume-templates"
+        canonicalUrl="/templates"
+        breadcrumbs={breadcrumbs}
+        structuredData={templatesSchema}
+        keywords={['resume templates', 'free resume templates', 'ats resume template', 'minimal resume template', 'executive resume template']}
       />
 
       <Header

@@ -60,6 +60,11 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/resume-examples" className="hover:text-gray-900 transition-colors duration-150">
+                    Resume Examples
+                  </Link>
+                </li>
+                <li>
                   <Link to="/faq" className="hover:text-gray-900 transition-colors duration-150">
                     FAQ
                   </Link>

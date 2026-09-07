@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, EducationItem } from '../../../types';
+import { PortfolioData, EducationItem, createSafeUUID } from '../../../types';
 
 interface WizardStepProps {
   data: PortfolioData;
@@ -9,7 +9,7 @@ interface WizardStepProps {
 export default function WizardStepEducation({ data, onChange }: WizardStepProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<EducationItem>({ 
-    id: crypto.randomUUID(),
+    id: createSafeUUID(),
     institution: '', 
     degree: '', 
     field: '', 
@@ -31,12 +31,12 @@ export default function WizardStepEducation({ data, onChange }: WizardStepProps)
     setError('');
     const newEntry: EducationItem = {
       ...form,
-      id: form.id || crypto.randomUUID(),
+      id: form.id || createSafeUUID(),
     };
     onChange({ ...data, education: [...data.education, newEntry] });
     setIsAdding(false);
     setForm({ 
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       institution: '', 
       degree: '', 
       field: '', 

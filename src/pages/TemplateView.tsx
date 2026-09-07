@@ -229,12 +229,33 @@ export default function TemplateView() {
     navigate(`/builder/start?template=${detail.id}`);
   };
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Resume Templates', url: '/templates' },
+    { name: detail.name, url: `/templates/${detail.id}` },
+  ];
+
+  const templateSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${detail.name} Resume Template`,
+    description: detail.description,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col font-sans">
       <SEO
         title={detail.title}
         description={detail.description}
         canonicalUrl={`/templates/${detail.id}`}
+        breadcrumbs={breadcrumbs}
+        structuredData={templateSchema}
+        keywords={[`${detail.name.toLowerCase()} resume template`, 'resume template', 'ats resume template', 'free resume format']}
       />
 
       <Header />

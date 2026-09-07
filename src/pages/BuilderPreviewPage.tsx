@@ -14,6 +14,7 @@ export default function BuilderPreviewPage() {
         title="Resume Preview | BuildEasy"
         description="Preview your finished resume layout and prepare for PDF export."
         canonicalUrl="/builder/preview"
+        noindex={true}
       />
       <ScreenPreview
         data={data}

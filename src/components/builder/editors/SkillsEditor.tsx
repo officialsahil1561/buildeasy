@@ -95,9 +95,9 @@ export default function SkillsEditor({ data, onChange }: SkillsEditorProps) {
           </div>
         ) : (
           <div className="flex flex-wrap gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl min-h-[60px]">
-            {skills.map((skill) => (
+            {skills.map((skill, idx) => (
               <span
-                key={skill}
+                key={`${skill}-${idx}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 text-gray-800 text-xs font-semibold rounded-lg shadow-xs"
               >
                 {skill}

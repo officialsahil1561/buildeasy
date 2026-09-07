@@ -1,4 +1,4 @@
-import { PortfolioData, DEFAULT_CUSTOMIZATION, INITIAL_PORTFOLIO_DATA, createBlankResume } from '../types';
+import { PortfolioData, createDefaultCustomization, createBlankResume, createSafeUUID } from '../types';
 import { sanitizeText, sanitizeUrl } from './utils';
 
 export { createBlankResume } from '../types';
@@ -9,7 +9,6 @@ export const STORAGE_KEYS = {
   SCHEMA_VERSION: 'buildeasy_schema_version',
   SCREEN: 'buildeasy_current_screen',
   TAB: 'buildeasy_active_builder_tab',
-  PURCHASES: 'buildeasy_resume_purchases',
 };
 
 const STORAGE_KEY = STORAGE_KEYS.RESUME_DATA;
@@ -17,41 +16,10 @@ const VERSION_KEY = STORAGE_KEYS.SCHEMA_VERSION;
 const CURRENT_SCHEMA_VERSION = 2;
 
 /**
- * Payment / Purchase Helpers
- */
-export function markResumeAsPaid(resumeId: string): void {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PURCHASES);
-    const purchases = raw ? JSON.parse(raw) : [];
-    if (!purchases.includes(resumeId)) {
-      purchases.push(resumeId);
-      localStorage.setItem(STORAGE_KEYS.PURCHASES, JSON.stringify(purchases));
-    }
-  } catch (error) {
-    console.error('Failed to mark resume as paid:', error);
-  }
-}
-
-export function isResumePaid(resumeId: string): boolean {
-  if (!resumeId) return false;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PURCHASES);
-    if (!raw) return false;
-    const purchases = JSON.parse(raw);
-    return Array.isArray(purchases) && purchases.includes(resumeId);
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Generate cryptographically random ID with fallback
  */
-function createId(prefix = 'item'): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+function createId(_prefix = 'item'): string {
+  return createSafeUUID();
 }
 
 /**
@@ -202,7 +170,7 @@ export function normalizePortfolioData(raw: unknown): PortfolioData {
         : 'balanced',
       sectionOrder: Array.isArray(data.customization?.sectionOrder)
         ? data.customization.sectionOrder.filter(s => typeof s === 'string')
-        : INITIAL_PORTFOLIO_DATA.customization?.sectionOrder || ['summary', 'experience', 'education', 'projects', 'skills'],
+        : createDefaultCustomization().sectionOrder,
       hiddenSections: Array.isArray(data.customization?.hiddenSections)
         ? data.customization.hiddenSections.filter(s => typeof s === 'string')
         : [],

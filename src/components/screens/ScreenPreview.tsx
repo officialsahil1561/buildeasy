@@ -20,16 +20,23 @@ interface ScreenPreviewProps {
 
 export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: ScreenPreviewProps) {
   const [isExporting, setIsExporting] = React.useState(false);
+  const [exportError, setExportError] = React.useState<string | null>(null);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
   const navigate = useNavigate();
 
   const handleExportPdf = async () => {
     setIsExporting(true);
+    setExportError(null);
     try {
-      await triggerAuthoritativePdfExport(data);
-      navigate('/builder/export');
-    } catch (err) {
+      const res = await triggerAuthoritativePdfExport(data);
+      if (res.success) {
+        navigate('/builder/export');
+      } else {
+        setExportError(res.error || 'Failed to open print dialog. Please try again.');
+      }
+    } catch (err: any) {
       console.error('Export failed:', err);
+      setExportError(err?.message || 'An unexpected error occurred during export.');
     } finally {
       setIsExporting(false);
     }
@@ -37,6 +44,18 @@ export default function ScreenPreview({ data, onBackToEdit, onSelectTemplate }: 
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#E5E7EB] overflow-y-auto">
+      {exportError && (
+        <div className="bg-rose-50 border-b border-rose-200 text-rose-800 px-4 py-3 text-xs font-medium flex items-center justify-between z-40">
+          <span>{exportError}</span>
+          <button
+            type="button"
+            onClick={() => setExportError(null)}
+            className="text-rose-600 hover:text-rose-900 font-bold ml-4 cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       {/* 1. Header Toolbar */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">

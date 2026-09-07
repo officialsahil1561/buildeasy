@@ -15,6 +15,8 @@ import TemplateView from './pages/TemplateView';
 import FAQ from './pages/FAQ';
 import ResumeTipsIndex from './pages/ResumeTipsIndex';
 import ArticleView from './pages/ArticleView';
+import ResumeExamplesIndex from './pages/ResumeExamplesIndex';
+import ResumeExampleView from './pages/ResumeExampleView';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -45,6 +47,8 @@ export default function App() {
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/resume-tips" element={<ResumeTipsIndex />} />
             <Route path="/resume-tips/:slug" element={<ArticleView />} />
+            <Route path="/resume-examples" element={<ResumeExamplesIndex />} />
+            <Route path="/resume-examples/:slug" element={<ResumeExampleView />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />

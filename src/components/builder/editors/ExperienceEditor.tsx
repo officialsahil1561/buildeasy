@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PortfolioData, ExperienceItem } from '../../../types';
+import { PortfolioData, ExperienceItem, createSafeUUID } from '../../../types';
 import { SectionHeader, AccordionEntry, FormField } from './EditorPrimitives';
 import { SortableList, SortableItem } from './SortableList';
 import { Plus, Trash2 } from 'lucide-react';
@@ -20,7 +20,7 @@ export default function ExperienceEditor({ data, onChange }: ExperienceEditorPro
   };
 
   const handleAdd = () => {
-    const newId = crypto.randomUUID();
+    const newId = createSafeUUID();
     const newItem: ExperienceItem = {
       id: newId,
       role: '',
@@ -42,7 +42,7 @@ export default function ExperienceEditor({ data, onChange }: ExperienceEditorPro
   const handleDuplicate = (exp: ExperienceItem, idx: number) => {
     const copy: ExperienceItem = {
       ...exp,
-      id: crypto.randomUUID(),
+      id: createSafeUUID(),
       role: exp.role ? `${exp.role} (Copy)` : 'Copy',
     };
     const updated = [...data.experience];

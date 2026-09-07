@@ -13,6 +13,10 @@ export default function Privacy() {
         title="Privacy Policy | BuildEasy"
         description="BuildEasy Privacy Policy: We prioritize your data privacy. Learn how your resume information remains stored locally in your browser."
         canonicalUrl="/privacy"
+        breadcrumbs={[
+          { name: 'Home', url: '/' },
+          { name: 'Privacy Policy', url: '/privacy' },
+        ]}
       />
 
       <Header

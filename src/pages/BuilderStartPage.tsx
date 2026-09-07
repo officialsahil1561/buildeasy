@@ -31,6 +31,7 @@ export default function BuilderStartPage() {
         title="Create New Resume | BuildEasy"
         description="Step-by-step wizard to build your professional resume in minutes."
         canonicalUrl="/builder/start"
+        noindex={true}
       />
       <ResumeWizard
         initialTemplateId={initialTemplateId}

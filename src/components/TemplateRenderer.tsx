@@ -13,8 +13,20 @@ interface TemplateRendererProps {
   data: PortfolioData;
 }
 
+export function isSectionHidden(sectionId: string, customization?: CustomizationSettings): boolean {
+  const hidden = customization?.hiddenSections || [];
+  if (hidden.includes(sectionId)) return true;
+  if ((sectionId === 'summary' || sectionId === 'basic') && (hidden.includes('summary') || hidden.includes('basic'))) {
+    return true;
+  }
+  if (hidden.includes('certifications') && ['achievements', 'publications', 'custom'].includes(sectionId)) {
+    return true;
+  }
+  return false;
+}
+
 export function getSectionStyle(sectionId: string, customization?: CustomizationSettings): React.CSSProperties {
-  if (customization?.hiddenSections?.includes(sectionId)) {
+  if (isSectionHidden(sectionId, customization)) {
     return { display: 'none' };
   }
   return {};
@@ -55,6 +67,9 @@ export function renderSectionsByOrder(data: PortfolioData, sectionRenderers: Rec
   const fullOrder = [...order.filter(k => allKeys.includes(k)), ...allKeys.filter(k => !order.includes(k))];
 
   return fullOrder.map(sectionId => {
+    if (isSectionHidden(sectionId, data.customization)) {
+      return null;
+    }
     const renderer = sectionRenderers[sectionId];
     if (!renderer) return null;
     const res = renderer();

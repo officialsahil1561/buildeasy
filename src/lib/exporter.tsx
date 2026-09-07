@@ -37,6 +37,8 @@ export function generateResumeFilename(data: PortfolioData): string {
   return 'BuildEasy_Resume';
 }
 
+let isExportInProgress = false;
+
 /**
  * Authoritative Browser Print-to-PDF Pipeline
  * Renders the resume into an isolated print document preserving real HTML text,
@@ -45,6 +47,16 @@ export function generateResumeFilename(data: PortfolioData): string {
  */
 export async function triggerAuthoritativePdfExport(data: PortfolioData): Promise<PdfExportResult> {
   const filename = generateResumeFilename(data);
+
+  if (isExportInProgress) {
+    return {
+      success: false,
+      filename: `${filename}.pdf`,
+      error: 'An export is already in progress. Please complete or dismiss the current print dialog first.',
+    };
+  }
+  isExportInProgress = true;
+
   const isA4 = data.customization?.pageSize?.toLowerCase() === 'a4';
   const pageSize = isA4 ? 'A4' : 'letter';
 
@@ -77,6 +89,7 @@ export async function triggerAuthoritativePdfExport(data: PortfolioData): Promis
 
   const printWindow = iframe.contentWindow;
   if (!printWindow) {
+    isExportInProgress = false;
     if (iframe.parentNode) iframe.remove();
     return {
       success: false,
@@ -173,27 +186,37 @@ export async function triggerAuthoritativePdfExport(data: PortfolioData): Promis
     const root = createRoot(printRoot);
     root.render(<TemplateRenderer data={data} />);
 
-    // 5. Explicitly wait for fonts in the actual print document to be ready
-    if (printDoc.fonts) {
-      await printDoc.fonts.ready;
-    }
-    if (document.fonts) {
-      await document.fonts.ready;
+    // 5. Explicitly wait for fonts in the actual print document to be ready with a fallback timeout
+    try {
+      if (printDoc.fonts) {
+        await Promise.race([
+          printDoc.fonts.ready,
+          new Promise((resolve) => setTimeout(resolve, 1500)),
+        ]);
+      }
+      if (document.fonts) {
+        await Promise.race([
+          document.fonts.ready,
+          new Promise((resolve) => setTimeout(resolve, 1000)),
+        ]);
+      }
+    } catch {
+      // Font loading failure fallback - proceed with system font stack
     }
 
     // 6. Wait for layout stabilization
-    await new Promise(resolve => setTimeout(resolve, 350));
+    await new Promise((resolve) => setTimeout(resolve, 350));
 
     // 7. Update document titles so browsers default to the candidate resume name
     const originalHostTitle = document.title;
     document.title = filename;
 
-    // 8. Safely trigger print
-    printWindow.focus();
-    printWindow.print();
-
-    // 9. Schedule cleanup of isolated document and restore host window title
+    // Schedule cleanup of isolated document and restore host window title
+    let cleanedUp = false;
     const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      isExportInProgress = false;
       document.title = originalHostTitle;
       setTimeout(() => {
         try {
@@ -211,11 +234,25 @@ export async function triggerAuthoritativePdfExport(data: PortfolioData): Promis
     window.addEventListener('afterprint', cleanup, { once: true });
     setTimeout(cleanup, 60000);
 
+    // 8. Safely trigger print with try-catch for sandbox/blocked print dialogs
+    try {
+      printWindow.focus();
+      printWindow.print();
+    } catch (printErr: any) {
+      cleanup();
+      return {
+        success: false,
+        filename: `${filename}.pdf`,
+        error: printErr?.message || 'The browser blocked the print window. Please allow popups or printing in your browser settings.',
+      };
+    }
+
     return {
       success: true,
-      filename: `${filename}.pdf`
+      filename: `${filename}.pdf`,
     };
   } catch (err: any) {
+    isExportInProgress = false;
     console.error('Authoritative Print Export Error:', err);
     if (iframe.parentNode) {
       iframe.remove();

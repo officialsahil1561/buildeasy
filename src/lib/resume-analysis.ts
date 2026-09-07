@@ -251,13 +251,13 @@ export function analyzeResumeATS(data: PortfolioData, jobDescription: string = '
   if (!hasEmail) {
     structureScore -= 15;
     atsCompatibility -= 20;
-    recommendations.push({ id: 'missing-email', priority: 'high', message: 'Valid contact email address is missing. ATS systems cannot link you without an email.', tabTarget: 'basic' });
+    recommendations.push({ id: 'missing-email', priority: 'high', message: 'Contact email address is missing. Recommended for recruiter outreach and ATS contact parsing.', tabTarget: 'basic' });
     atsExplanations.push('Missing valid email address (-20)');
   }
   if (!hasPhone) {
     structureScore -= 10;
     atsCompatibility -= 10;
-    recommendations.push({ id: 'missing-phone', priority: 'high', message: 'Phone number is missing. Essential for ATS parsing.', tabTarget: 'basic' });
+    recommendations.push({ id: 'missing-phone', priority: 'high', message: 'Phone number is missing. Recommended for direct recruiter contact.', tabTarget: 'basic' });
     atsExplanations.push('Missing phone number (-10)');
   }
   if (!hasName) {
@@ -276,15 +276,15 @@ export function analyzeResumeATS(data: PortfolioData, jobDescription: string = '
   if (experienceCount === 0 && educationCount === 0 && projectsCount === 0) {
     structureScore -= 30;
     atsCompatibility -= 30;
-    recommendations.push({ id: 'missing-core-sections', priority: 'high', message: 'Resume must have Experience, Education, or Projects.', tabTarget: 'experience' });
-    structureExplanations.push('Missing all core sections (Experience, Education, Projects)');
+    recommendations.push({ id: 'missing-core-sections', priority: 'high', message: 'Add at least one core section: Experience, Education, or Projects.', tabTarget: 'experience' });
+    structureExplanations.push('Missing core sections (Experience, Education, Projects)');
   } else if (experienceCount === 0) {
     if (educationCount > 0 && projectsCount > 0) {
-      recommendations.push({ id: 'no-experience-student', priority: 'low', message: 'No professional work experience found. Ensure your projects clearly demonstrate your technical skills.', tabTarget: 'projects' });
+      recommendations.push({ id: 'no-experience-student', priority: 'low', message: 'No formal work experience listed. Ensure your projects and education highlight your relevant practical skills.', tabTarget: 'projects' });
       structureExplanations.push('No work experience (mitigated by Projects/Education)');
     } else {
       structureScore -= 15;
-      recommendations.push({ id: 'missing-experience', priority: 'medium', message: 'Adding work experience is highly recommended if applicable.', tabTarget: 'experience' });
+      recommendations.push({ id: 'missing-experience', priority: 'medium', message: 'Adding work experience is recommended where applicable.', tabTarget: 'experience' });
       structureExplanations.push('Missing Experience section (-15)');
     }
   }
@@ -292,7 +292,7 @@ export function analyzeResumeATS(data: PortfolioData, jobDescription: string = '
   if (skillsCount === 0) {
     structureScore -= 15;
     atsCompatibility -= 15;
-    recommendations.push({ id: 'missing-skills', priority: 'high', message: 'No skills added. ATS keyword parsers heavily rely on your skills inventory.', tabTarget: 'skills' });
+    recommendations.push({ id: 'missing-skills', priority: 'high', message: 'No skills added. Listing relevant technical and role-specific skills improves keyword match readiness.', tabTarget: 'skills' });
     atsExplanations.push('Missing Skills section (-15)');
   }
 
@@ -317,15 +317,18 @@ export function analyzeResumeATS(data: PortfolioData, jobDescription: string = '
     const metricRatio = metricBullets / totalBullets;
     if (metricRatio < 0.2) {
       contentQuality -= 15;
-      recommendations.push({ id: 'low-metrics', priority: 'medium', message: `Only ${metricBullets} of ${totalBullets} bullets contain measurable outcomes. Add numbers/impact metrics to quantify your impact.`, tabTarget: 'experience' });
+      recommendations.push({ id: 'low-metrics', priority: 'medium', message: `Only ${metricBullets} of ${totalBullets} bullet points contain measurable outcomes. Adding numbers and impact metrics helps quantify your accomplishments.`, tabTarget: 'experience' });
     }
     if (weakBullets > 0) {
       contentQuality -= (weakBullets * 2);
-      recommendations.push({ id: 'weak-bullets', priority: 'medium', message: `${weakBullets} bullet(s) are very short. Expand on what you did, how you did it, and the result.`, tabTarget: 'experience' });
+      recommendations.push({ id: 'weak-bullets', priority: 'medium', message: `${weakBullets} bullet point(s) are very brief. Expanding on what you accomplished and the methods used provides clearer context.`, tabTarget: 'experience' });
     }
   } else if (experienceCount > 0 || projectsCount > 0) {
     contentQuality -= 25;
-    recommendations.push({ id: 'no-bullets', priority: 'high', message: 'Use bullet points in Experience and Projects to describe your impact clearly for parsers.', tabTarget: 'experience' });
+    recommendations.push({ id: 'no-bullets', priority: 'high', message: 'Use bullet points in Experience and Projects to describe your key responsibilities and results clearly.', tabTarget: 'experience' });
+  } else if (!data.basicInfo?.summary?.trim()) {
+    // Blank resume with no bullets and no summary has minimal content
+    contentQuality = 0;
   }
 
   // Duplicates check
@@ -478,6 +481,8 @@ export function analyzeResumeATS(data: PortfolioData, jobDescription: string = '
     );
   }
 
+  overallScore = Math.max(0, Math.min(100, overallScore));
+
   let overallStatus = 'Incomplete';
   if (overallScore >= 85) overallStatus = 'Strong Match';
   else if (overallScore >= 70) overallStatus = 'Good Match';
@@ -488,7 +493,7 @@ export function analyzeResumeATS(data: PortfolioData, jobDescription: string = '
     overallScore,
     overallStatus,
     hasJd,
-    atsCompatibility: { score: atsCompatibility, label: 'ATS Compatibility', explanation: atsExplanations.join(' ') },
+    atsCompatibility: { score: atsCompatibility, label: 'ATS Readiness', explanation: atsExplanations.join(' ') },
     jobMatch: { score: jobMatch, label: 'Job Match', explanation: jobMatchExplanations.join(' ') },
     experienceRelevance: { score: experienceRelevance, label: 'Exp. Relevance', explanation: expRelExplanations.join(' ') },
     structureScore: { score: structureScore, label: 'Structure', explanation: structureExplanations.join(' ') },

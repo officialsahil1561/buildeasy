@@ -1,4 +1,4 @@
-# BuildEasy — Free AI-Powered Resume & Portfolio Builder
+# BuildEasy — Free Resume & Portfolio Builder
 
 BuildEasy is a fast, modern resume and portfolio builder designed to help job seekers generate high-impact, ATS-optimized resumes.
 
@@ -43,9 +43,6 @@ npm run preview
 Copy `.env.example` to `.env`:
 
 ```env
-# Optional Gemini API key for server-side AI features
-GEMINI_API_KEY="your-gemini-api-key"
-
 # App URL endpoint
 APP_URL="http://localhost:3000"
 ```
@@ -54,4 +51,4 @@ APP_URL="http://localhost:3000"
 
 ## Production Deployment
 
-BuildEasy compiles into optimized static files (`dist/`) served via Vite or Cloud Run containers. The app uses client-side state persistence (`localStorage`) with automatic schema fallback.
+BuildEasy compiles into optimized static files (`dist/`) served via Vite, Nginx, or any standard static web host. The app uses client-side state persistence (`localStorage`) with automatic schema fallback.
